@@ -2,7 +2,9 @@
 title: "Pathogen Genomics Workshop"
 author: "Joseph Crispell"
 date: "`r format(Sys.Date(), '%d %b %Y')`"
-output: rmarkdown::github_document
+output: 
+  html_document:
+    keep_md: true
 ---
 
 ```{r setup, include=FALSE}
@@ -153,7 +155,8 @@ informativeGenomePositions <- genomePositions[-uninformativeSites, ]
 Now, let's take another look at the alignment, how has it changed?
 
 ```{r echo=TRUE, message=FALSE, results="hide", eval=FALSE}
-plotFASTA(nucleotideAlignmentInformative, pdfFileName=paste0("InformativeSitesAlignment_", today, ".pdf"))
+plotFASTA(nucleotideAlignmentInformative, 
+          pdfFileName=paste0("InformativeSitesAlignment_", today, ".pdf"))
 ```
 ```{r fig.align="center", fig.width=15, fig.height=7.5, echo=FALSE}
 plotFASTA(nucleotideAlignmentInformative)
@@ -259,8 +262,7 @@ Lastly, now we'll take the output of our maximum likelihood analysis and feed it
 bootstrapResults <- bootstrap.pml(fittingOutput,
                                   bs = 100,
                                   jumble = TRUE,
-                                  control = pml.control(maxit=100000)) # Set the maximum number of iterations
-
+                                  control = pml.control(maxit=100000)) # Set maximum iteration number
 ```
 
 ## Step 8: Plotting the phylogenetic tree
@@ -270,7 +272,7 @@ Now that we have constructed and bootstrapped our maximum likelihood phylogeneti
 ```{r eval=FALSE}
 # Get phylogenetic tree with bootstrap values
 # Returns phylogenetic tree with bootstrap values as node labels
-mlTreeBS <- plotBS(fittingOutput$tree, bootstrapResults, type="fan") # Type of phylogenetic tree shape to plot
+mlTreeBS <- plotBS(fittingOutput$tree, bootstrapResults, type="fan")
 ```
 
 ```{r echo=FALSE, eval=TRUE, message=FALSE, results="hide"}
@@ -303,7 +305,8 @@ mlTreeBSWithoutRef <- drop.tip(mlTreeBS, tip = "Reference_Cow_1997-10-15")
 par(mar=c(0.1, 0.1, 0.1, 0.1))
 
 # Plot the phylogeny - add in bootstrap values and species shapes
-plot.phylo(mlTreeBSWithoutRef, show.tip.label = FALSE, edge.width = 3, type = "phylogram", edge.color = "grey")
+plot.phylo(mlTreeBSWithoutRef, show.tip.label = FALSE, edge.width = 3, type = "phylogram",
+           edge.color = "grey")
 
 # Add bootstrap values
 bootstrapValues <- mlTreeBSWithoutRef$node.label/100
@@ -311,7 +314,8 @@ nodelabels(pch=19, frame="none", col=rgb(0,0,0, bootstrapValues), cex=0.75)
 
 # Add node labels
 tiplabels(pch=ifelse(grepl(mlTreeBSWithoutRef$tip.label, pattern = "Wildlife"), 21, 24), 
-          bg=ifelse(grepl(mlTreeBSWithoutRef$tip.label, pattern = "Wildlife"), "red", "blue"), col = "dimgrey", cex=1.5)
+          bg=ifelse(grepl(mlTreeBSWithoutRef$tip.label, pattern = "Wildlife"), "red", "blue"),
+          col = "dimgrey", cex=1.5)
 
 # Add a scale
 addSNPScale(position="topright", lineWidth=2)
