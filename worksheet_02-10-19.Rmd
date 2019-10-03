@@ -319,3 +319,7 @@ addSNPScale(position="topright", lineWidth=2)
 # Add a species legend
 legend("right", legend=c("Badger", "Cow"), pch=c(19, 17), col=c("red", "blue"), bty="n", xpd=TRUE)
 ```
+
+## TO DO
+
+# Set up a different example: ebola.fasta (https://github.com/nextstrain/ebola/blob/master/example_data/ebola.fasta)
