@@ -1,15 +1,10 @@
----
-title: "Pathogen Genomics Workshop"
-author: "Joseph Crispell"
-date: "`r format(Sys.Date(), '%d %b %Y')`"
-output: rmarkdown::github_document
----
+Pathogen Genomics Workshop
+================
+Joseph Crispell
+03 Oct 2019
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
-## Introduction
+Introduction
+------------
 
 Pathogens threaten the health of people and animals. Understand pathogen transmission can help us understand how to control it.
 
@@ -19,33 +14,34 @@ We'll use some genomic data sourced from infected cattle and wildlife to try and
 
 ### Learning objectives
 
-- Be able to install and load different R packages
-- To load a FASTA nucleotide sequence file
-- To construct and plot a phylogenetic tree
-- Can understand why github can be useful
-- Able to build and use an R package
+-   Be able to install and load different R packages
+-   To load a FASTA nucleotide sequence file
+-   To construct and plot a phylogenetic tree
+-   Can understand why github can be useful
+-   Able to build and use an R package
 
-## Step 1: Set your working directory
+Step 1: Set your working directory
+----------------------------------
 
 I have created a working directory folder for us, you can download it from [here](https://github.com/JosephCrispell/PathogenGenomicsWorkshop/archive/master.zip).
 
 Unzip the folder and place it on your Desktop. Then we can set this folder to our working directory using the following code:
 
-```{r}
+``` r
 # Set your working directory
 setwd(file.path("~", "Desktop", ""))
 ```
 
-> QUESTION:<br>
-> 1. What is a working directory?
+> QUESTION:<br> 1. What is a working directory?
 
-## Step 1: Getting started
+Step 1: Getting started
+-----------------------
 
 Firstly, we are going to install some R packages that we'll use throughout the workshop. The packages are `ape`, `phangorn` and `PathogenGenomicsWorkshopPackage`. The first two packages are commonly used for phylogenetic analyses in R. The `PathogenGenomicsWorkshopPackage` is an R package that we have specifically developed for this course. It has a few functions that we'll use later on.
 
 Here is how to install the R packages:
 
-```{r eval=FALSE, echo=TRUE}
+``` r
 # Installing the 'ape' package
 install.packages("ape", repos="https://cloud.r-project.org")
 
@@ -58,15 +54,8 @@ devtools::install_github("JosephCrispell/pathogenGenomicsWorkshop")
 ```
 
 Once that is done, we can load the packages using the following code:
-```{r echo=FALSE, message=FALSE, results="hide"}
-# Load the required libraries
-suppressWarnings(library(ape)) # For reading in sequence
-suppressWarnings(library(phangorn)) # For testing substitution models and building and plotting the phylogeny
-suppressWarnings(library(pathogenGenomicsWorkshop)) # Our custom package for the current course
-```
 
-```{r eval=FALSE, echo=TRUE}
-
+``` r
 # Load the required libraries
 library(ape) # For reading in sequence
 library(phangorn) # For testing substitution models and building and plotting the phylogeny
@@ -75,18 +64,19 @@ library(pathogenGenomicsWorkshop) # Our custom package for the current course
 
 We are also going to create a variable that stores todays date - we'll use this when we are creating files. Here's how:
 
-```{r}
+``` r
 # Get the current date
 today <- format(Sys.Date(), "%d-%m-%y")
 ```
 
-> QUESTION:<br>
-> 1. Why create/use R packages?
+> QUESTION:<br> 1. Why create/use R packages?
 
-## Step 3: Reading in the FASTA file
+Step 3: Reading in the FASTA file
+---------------------------------
 
 A FASTA file stores a or multiple nucleotide sequences. Our FASTA file stores the nucleotides present at a subset of genomic positions for `48` different *M. bovis* genomes. Read it in using the following code:
-```{r}
+
+``` r
 # Read in the FASTA file
 fastaFile <- system.file("extdata", "Wicklow_Mbovis.fasta", package = "pathogenGenomicsWorkshop")
 nucleotideAlignment <- read.dna(fastaFile, format = "fasta", as.character=TRUE)
@@ -95,47 +85,38 @@ nucleotideAlignment <- toupper(nucleotideAlignment) # Convert the nucleotides to
 
 Notice by default nucleotides are stored in lower case, we don't like that so we've converted them to uppercase.
 
-> QUESTIONS:<br>
-> 1. Can anyone tell me what class of variable we have stored the sequences in?<br>
-> 2. Do we have `48` sequences?<br>
-> 3. How many positions are in the FASTA file?<br>
+> QUESTIONS:<br> 1. Can anyone tell me what class of variable we have stored the sequences in?<br> 2. Do we have `48` sequences?<br> 3. How many positions are in the FASTA file?<br>
 
 We also have a file that tells us which position on the *M. bovis* genome each position in the FASTA file relates to. Lets read that in:
-```{r}
+
+``` r
 # Read in the genome positions
 positionsFile <- system.file("extdata", "fastaPositions.txt", package = "pathogenGenomicsWorkshop")
 genomePositions <- read.table(positionsFile, header=TRUE)
 ```
 
-> EXERCISE:<br>
-> 1. Create the plot below:<br>
+> EXERCISE:<br> 1. Create the plot below:<br>
 
-```{r eval=TRUE, echo=FALSE, fig.align="center"}
-# Plot the positions of the FASTA positions
-hist(genomePositions$Position, breaks=1000, las=1,
-     main="Positions of sites in the FASTA nucleotide alignment",
-     xlab="Position")
-```
+<img src="worksheet_02-10-19_files/figure-markdown_github/unnamed-chunk-8-1.png" style="display: block; margin: auto;" />
 
-The FASTA file contains only the variant positions on the reference genome based on the whole genome sequencing data for the 48 *M. bovis* isolates. 
+The FASTA file contains only the variant positions on the reference genome based on the whole genome sequencing data for the 48 *M. bovis* isolates.
 
-> QUESTION:<br>
-> 1. Why might there be areas of the genome with more variants?<br>
+> QUESTION:<br> 1. Why might there be areas of the genome with more variants?<br>
 
 Now, let's take a quick look at the FASTA file:
-```{r echo=TRUE, message=FALSE, results="hide"}
+
+``` r
 plotFASTA(nucleotideAlignment, pdfFileName=paste0("FullNucleotideAlignment_", today, ".pdf"))
 ```
 
-```{r fig.align="center", fig.width=15, fig.height=7.5, echo=FALSE}
-plotFASTA(nucleotideAlignment)
-```
+<img src="worksheet_02-10-19_files/figure-markdown_github/unnamed-chunk-10-1.png" style="display: block; margin: auto;" />
 
-## Step 4: Cleaning up the FASTA file
+Step 4: Cleaning up the FASTA file
+----------------------------------
 
 There are a lot of sites that aren't informative. They are the same in all the `48` sequences. We can clean up the alignment using the following code:
 
-```{r}
+``` r
 # Count the nucleotides at each site in the alignment
 nucleotideCountsAtEachSite <- countNucleotidesAtEachSite(nucleotideAlignment)
 
@@ -147,27 +128,24 @@ nucleotideAlignmentInformative <- nucleotideAlignment[, -uninformativeSites]
 informativeGenomePositions <- genomePositions[-uninformativeSites, ]
 ```
 
-> QUESTION:<br>
-> 1. What does line 5 in the above code block do?<br>
+> QUESTION:<br> 1. What does line 5 in the above code block do?<br>
 
 Now, let's take another look at the alignment, how has it changed?
 
-```{r echo=TRUE, message=FALSE, results="hide", eval=FALSE}
+``` r
 plotFASTA(nucleotideAlignmentInformative, pdfFileName=paste0("InformativeSitesAlignment_", today, ".pdf"))
 ```
-```{r fig.align="center", fig.width=15, fig.height=7.5, echo=FALSE}
-plotFASTA(nucleotideAlignmentInformative)
-```
 
-> QUESTIONS:<br>
-> 1. Can anyone guess what the nucleotide sequence at the top of the plot is?<br>
-> 2. If we remove this sequence and then remove uninformative sites, how does the alignment change?<br>
+<img src="worksheet_02-10-19_files/figure-markdown_github/unnamed-chunk-13-1.png" style="display: block; margin: auto;" />
 
-## Step 5: Extract the sequence metadata from the IDs
+> QUESTIONS:<br> 1. Can anyone guess what the nucleotide sequence at the top of the plot is?<br> 2. If we remove this sequence and then remove uninformative sites, how does the alignment change?<br>
+
+Step 5: Extract the sequence metadata from the IDs
+--------------------------------------------------
 
 As you will have seen the sequence labels contain some information about our sequences. Let's extract these data and store them in a `data.frame`:
 
-```{r}
+``` r
 # Extract metadata from sequences
 sequenceInfo <- getSequenceInfoFromNames(rownames(nucleotideAlignment))
 
@@ -175,41 +153,44 @@ sequenceInfo <- getSequenceInfoFromNames(rownames(nucleotideAlignment))
 head(sequenceInfo)
 ```
 
-> EXERCISE:<br>
-> 1. Calculate the number of samples sourced from wildlife and the number sourced from cattle<br>
+    ##                        Name  Species SamplingDate
+    ## 1 Seq-1_Wildlife_2014-11-13 Wildlife   2014-11-13
+    ## 2 Seq-2_Wildlife_2014-12-09 Wildlife   2014-12-09
+    ## 3 Seq-3_Wildlife_2014-11-18 Wildlife   2014-11-18
+    ## 4 Seq-4_Wildlife_2014-12-09 Wildlife   2014-12-09
+    ## 5      Seq-5_Cow_2015-05-08      Cow   2015-05-08
+    ## 6 Seq-6_Wildlife_2015-03-19 Wildlife   2015-03-19
 
-## Step 6: Examine the quality of the nucleotide sequences
+> EXERCISE:<br> 1. Calculate the number of samples sourced from wildlife and the number sourced from cattle<br>
 
-We don't have extensive data on the quality of our nucleotide sequences available but we can something about their quality from the nucleotide alignment. There are some `N`s in the alignment. 
+Step 6: Examine the quality of the nucleotide sequences
+-------------------------------------------------------
 
-> QUESTION:<br>
-> 1. What do `N`s in a nucleotide alignment mean?<br>
+We don't have extensive data on the quality of our nucleotide sequences available but we can something about their quality from the nucleotide alignment. There are some `N`s in the alignment.
+
+> QUESTION:<br> 1. What do `N`s in a nucleotide alignment mean?<br>
 
 Let's calculate the proportion of nucleotides in each sequence that are `N`s:
-```{r}
+
+``` r
 # Calculate the proportion of Ns for each sequence
 proportionNsInInformativeSites <- calculateProportionNsOfEachSequence(nucleotideAlignmentInformative)
 ```
 
-> EXERCISE:<br>
-> 1. Create the plot below:<br>
+> EXERCISE:<br> 1. Create the plot below:<br>
 
-```{r eval=TRUE, echo=FALSE, fig.align="center"}
-# Plot these values
-hist(proportionNsInInformativeSites, breaks=50, las=1, xlab="Proportion of Ns",
-     main="Quality of nucleotide sequences (informative sites only)")
-```
+<img src="worksheet_02-10-19_files/figure-markdown_github/unnamed-chunk-16-1.png" style="display: block; margin: auto;" />
 
 There are a couple of nucleotide sequences that don't have data for ~8% of the genome sites.
 
-> QUESTION:<br>
-> 1. How might these differences in sequence quality impact our analyses?<br>
+> QUESTION:<br> 1. How might these differences in sequence quality impact our analyses?<br>
 
-## Step 7: Build a phylogenetic tree
+Step 7: Build a phylogenetic tree
+---------------------------------
 
 To build a phylogenetic tree we need to calculate the number of differences between each of our nucleotide sequences. We need to construct a genetic distance matrix:
 
-```{r}
+``` r
 # Build a genetic distance matrix
 distances <- dist.dna(as.DNAbin(nucleotideAlignmentInformative), model="raw")
 ```
@@ -218,20 +199,18 @@ Note that in the code above, we had to change the class (format) that we were st
 
 Next, we'll build an initial neighbour-joining phylogenetic tree:
 
-```{r}
+``` r
 # Build a quick initial phylogenetic tree
 initialNJTree <- nj(distances)
 ```
 
 The neighbour joining algorithm is a fast method to construct a phylogenetic tree but it isn't very robust. We are now going to construct a tree using the Maximum Likelihood algorithm. In addition, we are going to use bootstrapping to investigate the robusting of the phylogenetic tree structure.
 
-> QUESTIONS:<br>
-> 1. Why the Maximum Likelihood algorithm is a more robust tree building algorithm?<br>
-> 2. How does bootstrapping work?<br>
+> QUESTIONS:<br> 1. Why the Maximum Likelihood algorithm is a more robust tree building algorithm?<br> 2. How does bootstrapping work?<br>
 
 To prepare to build our phylogeny, we'll construct a likelihood object using an initial tree and our nucleotide alignment:
 
-```{r eval=FALSE}
+``` r
 # Convert the nucleotide sequences into the PHYDAT format
 sequencesInPhyDatFormat <- phyDat(nucleotideAlignmentInformative, type="DNA")
 
@@ -241,7 +220,7 @@ likelihoodObject <- pml(initialNJTree, sequencesInPhyDatFormat)
 
 With that object, we'll first run our maximum likelihood algorithm without bootstrapping:
 
-```{r eval=FALSE}
+``` r
 # Run maximum likelihood
 fittingOutput <- optim.pml(likelihoodObject,
                            optNni = TRUE, # Optimise topology
@@ -254,33 +233,28 @@ fittingOutput <- optim.pml(likelihoodObject,
 
 Lastly, now we'll take the output of our maximum likelihood analysis and feed it into a bootstrapping analysis:
 
-```{r eval=FALSE}
+``` r
 # Build a bootstrapped maximum likelihood phylogeny
 bootstrapResults <- bootstrap.pml(fittingOutput,
                                   bs = 100,
                                   jumble = TRUE,
                                   control = pml.control(maxit=100000)) # Set the maximum number of iterations
-
 ```
 
-## Step 8: Plotting the phylogenetic tree
+Step 8: Plotting the phylogenetic tree
+--------------------------------------
 
 Now that we have constructed and bootstrapped our maximum likelihood phylogenetic tree, let's take a look at it. First we'll need to extract the phylogeny from our bootstrapping output:
 
-```{r eval=FALSE}
+``` r
 # Get phylogenetic tree with bootstrap values
 # Returns phylogenetic tree with bootstrap values as node labels
 mlTreeBS <- plotBS(fittingOutput$tree, bootstrapResults, type="fan") # Type of phylogenetic tree shape to plot
 ```
 
-```{r echo=FALSE, eval=TRUE, message=FALSE, results="hide"}
-# Load the previously built bootstrapped maximum likelihood phylogeny 
-data("mlTreeBS")
-```
-
 With the phylogeny stored as an object, we are going to create a simple plot:
 
-```{r fig.align="center", fig.width=10, fig.height=10}
+``` r
 # Convert the branch lengths to approximate SNPs
 mlTreeBS$edge.length <- mlTreeBS$edge.length * ncol(nucleotideAlignmentInformative)
 
@@ -288,14 +262,13 @@ mlTreeBS$edge.length <- mlTreeBS$edge.length * ncol(nucleotideAlignmentInformati
 plot.phylo(mlTreeBS, show.tip.label = TRUE, edge.width = 2, type = "phylogram", edge.color = "grey")
 ```
 
-> QUESTIONS:<br>
-> 1. What does line 2 in the above code block do?<br>
-> 2. Why does the reference stick out so far?<br>
+<img src="worksheet_02-10-19_files/figure-markdown_github/unnamed-chunk-24-1.png" style="display: block; margin: auto;" />
+
+> QUESTIONS:<br> 1. What does line 2 in the above code block do?<br> 2. Why does the reference stick out so far?<br>
 
 Let's remove the reference sequence and take a closer look at the phylogenetic relationships:
 
-```{r fig.align="center"}
-
+``` r
 # Remove the reference
 mlTreeBSWithoutRef <- drop.tip(mlTreeBS, tip = "Reference_Cow_1997-10-15")
 
@@ -320,6 +293,10 @@ addSNPScale(position="topright", lineWidth=2)
 legend("right", legend=c("Badger", "Cow"), pch=c(19, 17), col=c("red", "blue"), bty="n", xpd=TRUE)
 ```
 
-## TO DO
+<img src="worksheet_02-10-19_files/figure-markdown_github/unnamed-chunk-25-1.png" style="display: block; margin: auto;" />
 
-# Set up a different example: ebola.fasta (https://github.com/nextstrain/ebola/blob/master/example_data/ebola.fasta)
+TO DO
+-----
+
+Set up a different example: ebola.fasta (<https://github.com/nextstrain/ebola/blob/master/example_data/ebola.fasta>)
+====================================================================================================================
