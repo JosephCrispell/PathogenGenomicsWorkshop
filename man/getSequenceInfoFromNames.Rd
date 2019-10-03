@@ -6,6 +6,9 @@
 \usage{
 getSequenceInfoFromNames(names)
 }
+\arguments{
+\item{names}{A character vector containing specifically formatted character strings containing metadata: ID_species_%Y-%m-%d}
+}
 \value{
 Returns a data.frame containing the metadata extracted from each character string
 }

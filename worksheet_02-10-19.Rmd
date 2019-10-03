@@ -223,19 +223,13 @@ Next, we'll build an initial neighbour-joining phylogenetic tree:
 initialNJTree <- nj(distances)
 ```
 
-The neighbour joining algorithm is a fast method to construct a phylogenetic tree but it isn't very robust. We are now going to construct a tree using the Maximum Likelihood algorithm.
+The neighbour joining algorithm is a fast method to construct a phylogenetic tree but it isn't very robust. We are now going to construct a tree using the Maximum Likelihood algorithm. In addition, we are going to use bootstrapping to investigate the robusting of the phylogenetic tree structure.
 
-> QUESTION:<br>
-> 1. Can anyone tell me why the Maximum Likelihood algorithm is a more robust tree building algorithm?<br>
+> QUESTIONS:<br>
+> 1. Why the Maximum Likelihood algorithm is a more robust tree building algorithm?<br>
+> 2. How does bootstrapping work?<br>
 
-```{r, echo=FALSE, eval=TRUE, message=FALSE, results="hide"}
-# Load the maximum likelihood tree data object - don't want to run algorithm everytime! INCLUDE IN PACKAGE
-# distances
-# initialNJTree
-# fittingOutput
-# Maybe also include all the over data??
-
-```
+To prepare to build our phylogeny, we'll construct a likelihood object using an initial tree and our nucleotide alignment:
 
 ```{r eval=FALSE}
 # Convert the nucleotide sequences into the PHYDAT format
@@ -243,7 +237,11 @@ sequencesInPhyDatFormat <- phyDat(nucleotideAlignmentInformative, type="DNA")
 
 # Compute likelihood of the initial Neighbour Joining tree given sequences
 likelihoodObject <- pml(initialNJTree, sequencesInPhyDatFormat)
+```
 
+With that object, we'll first run our maximum likelihood algorithm without bootstrapping:
+
+```{r eval=FALSE}
 # Run maximum likelihood
 fittingOutput <- optim.pml(likelihoodObject,
                            optNni = TRUE, # Optimise topology
@@ -252,4 +250,72 @@ fittingOutput <- optim.pml(likelihoodObject,
                            model = "HKY", # Substitution model
                            rearrangement = "NNI", # Nearest Neighbour Interchanges
                            control = pml.control(maxit=100000)) # Set the maximum number of iterations
+```
+
+Lastly, now we'll take the output of our maximum likelihood analysis and feed it into a bootstrapping analysis:
+
+```{r eval=FALSE}
+# Build a bootstrapped maximum likelihood phylogeny
+bootstrapResults <- bootstrap.pml(fittingOutput,
+                                  bs = 100,
+                                  jumble = TRUE,
+                                  control = pml.control(maxit=100000)) # Set the maximum number of iterations
+
+```
+
+## Step 8: Plotting the phylogenetic tree
+
+Now that we have constructed and bootstrapped our maximum likelihood phylogenetic tree, let's take a look at it. First we'll need to extract the phylogeny from our bootstrapping output:
+
+```{r eval=FALSE}
+# Get phylogenetic tree with bootstrap values
+# Returns phylogenetic tree with bootstrap values as node labels
+mlTreeBS <- plotBS(fittingOutput$tree, bootstrapResults, type="fan") # Type of phylogenetic tree shape to plot
+```
+
+```{r echo=FALSE, eval=TRUE, message=FALSE, results="hide"}
+# Load the previously built bootstrapped maximum likelihood phylogeny 
+data("mlTreeBS")
+```
+
+With the phylogeny stored as an object, we are going to create a simple plot:
+
+```{r fig.align="center", fig.width=10, fig.height=10}
+# Convert the branch lengths to approximate SNPs
+mlTreeBS$edge.length <- mlTreeBS$edge.length * ncol(nucleotideAlignmentInformative)
+
+# Plot the phylogeny - add in bootstrap values and species shapes
+plot.phylo(mlTreeBS, show.tip.label = TRUE, edge.width = 2, type = "phylogram", edge.color = "grey")
+```
+
+> QUESTIONS:<br>
+> 1. What does line 2 in the above code block do?<br>
+> 2. Why does the reference stick out so far?<br>
+
+Let's remove the reference sequence and take a closer look at the phylogenetic relationships:
+
+```{r fig.align="center"}
+
+# Remove the reference
+mlTreeBSWithoutRef <- drop.tip(mlTreeBS, tip = "Reference_Cow_1997-10-15")
+
+# Set the plotting margins
+par(mar=c(0.1, 0.1, 0.1, 0.1))
+
+# Plot the phylogeny - add in bootstrap values and species shapes
+plot.phylo(mlTreeBSWithoutRef, show.tip.label = FALSE, edge.width = 3, type = "phylogram", edge.color = "grey")
+
+# Add bootstrap values
+bootstrapValues <- mlTreeBSWithoutRef$node.label/100
+nodelabels(pch=19, frame="none", col=rgb(0,0,0, bootstrapValues), cex=0.75)
+
+# Add node labels
+tiplabels(pch=ifelse(grepl(mlTreeBSWithoutRef$tip.label, pattern = "Wildlife"), 21, 24), 
+          bg=ifelse(grepl(mlTreeBSWithoutRef$tip.label, pattern = "Wildlife"), "red", "blue"), col = "dimgrey", cex=1.5)
+
+# Add a scale
+addSNPScale(position="topright", lineWidth=2)
+
+# Add a species legend
+legend("right", legend=c("Badger", "Cow"), pch=c(19, 17), col=c("red", "blue"), bty="n", xpd=TRUE)
 ```
