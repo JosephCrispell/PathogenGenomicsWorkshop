@@ -334,3 +334,5 @@ legend("right", legend=c("Badger", "Cow"), pch=c(19, 17), col=c("red", "blue"), 
 # Repository README
 
 # Test on MAC and WINDOWS machines
+
+# Remove uninformative sites, and reference?
