@@ -17,7 +17,7 @@
 #document()
 
 ## Install package
-#devtools::install_github("JosephCrispell/pathogeGenomicsWorkshop")
+#devtools::install_github("JosephCrispell/pathogenGenomicsWorkshop")
 
 ## Remove package
 #remove.packages("pathogenGenomicsWorkshop")
@@ -92,7 +92,7 @@ calculateProportionNsOfEachSequence <- function(nucleotideAlignment){
 #' Extract species and sampling date from sequence names
 #'
 #' A specific function to retrieve metadata from formatted character strings
-#' @param names A character vector containing specifically formatted character strings containing metadata: ID_species_%Y-%m-%d
+#' @param names A character vector containing specifically formatted character strings containing metadata: ID_species_\%Y-\%m-\%d
 #' @keywords character metadata
 #' @export
 #' @return Returns a data.frame containing the metadata extracted from each character string
