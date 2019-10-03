@@ -24,9 +24,6 @@ We'll use some genomic data sourced from infected cattle and wildlife to try and
 - Be able to install and load different R packages
 - To load a FASTA nucleotide sequence file
 - To construct and plot a phylogenetic tree
-- Can understand why github can be useful
-- Able to build and use an R package
-
 ## Step 1: Set your working directory
 
 I have created a working directory folder for us, you can download it from [here](https://github.com/JosephCrispell/PathogenGenomicsWorkshop/archive/master.zip).
@@ -327,3 +324,11 @@ legend("right", legend=c("Badger", "Cow"), pch=c(19, 17), col=c("red", "blue"), 
 ## TO DO
 
 # Set up a different example: ebola.fasta (https://github.com/nextstrain/ebola/blob/master/example_data/ebola.fasta)
+
+# Remove the boostrapping?
+
+# Remove class check for alignment
+
+# SIMPLIFY!!!
+
+# Test on MAC and WINDOWS machines
