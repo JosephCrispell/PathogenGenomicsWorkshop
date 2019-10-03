@@ -282,7 +282,7 @@ data("mlTreeBS")
 
 With the phylogeny stored as an object, we are going to create a simple plot:
 
-```{r fig.align="center", fig.width=10, fig.height=10}
+```{r fig.align="center", fig.height=10}
 # Convert the branch lengths to approximate SNPs
 mlTreeBS$edge.length <- mlTreeBS$edge.length * ncol(nucleotideAlignmentInformative)
 
@@ -296,7 +296,7 @@ plot.phylo(mlTreeBS, show.tip.label = TRUE, edge.width = 2, type = "phylogram", 
 
 Let's remove the reference sequence and take a closer look at the phylogenetic relationships:
 
-```{r fig.align="center"}
+```{r fig.align="center", fig.height=8}
 
 # Remove the reference
 mlTreeBSWithoutRef <- drop.tip(mlTreeBS, tip = "Reference_Cow_1997-10-15")
