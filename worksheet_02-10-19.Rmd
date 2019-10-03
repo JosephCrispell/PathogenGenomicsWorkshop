@@ -33,7 +33,7 @@ Unzip the folder and place it on your Desktop. Then we can set this folder to ou
 
 ```{r}
 # Set your working directory
-setwd(file.path("~", "Desktop", "PathogenGenomicsWorkshop", ""))
+setwd(file.path("~", "Desktop", ""))
 ```
 
 > QUESTION:<br>
@@ -52,9 +52,9 @@ install.packages("ape", repos="https://cloud.r-project.org")
 # Installing the 'phangorn' package
 install.packages("phangorn", repos="https://cloud.r-project.org")
 
-# Installing the 'PathogenGenomicsWorkshopPackage' package
-#install.packages("devtools", repos="https://cloud.r-project.org")
-#devtools::install_github("JosephCrispell/PathogenGenomicsWorkshopPackage")
+# Installing the 'pathogenGenomicsPackage' package
+install.packages("devtools", repos="https://cloud.r-project.org")
+devtools::install_github("JosephCrispell/pathogenGenomicsWorkshop")
 ```
 
 Once that is done, we can load the packages using the following code:
@@ -62,17 +62,15 @@ Once that is done, we can load the packages using the following code:
 # Load the required libraries
 suppressWarnings(library(ape)) # For reading in sequence
 suppressWarnings(library(phangorn)) # For testing substitution models and building and plotting the phylogeny
-#library(PathogenGenomicsWorkshopPackage) # Our custom package for the current course
-source("PathogenGenomicsWorkshop_FUNCTIONS_12-09-19.R") # REMOVE ONCE CUSTOM R PACKAGE MADE!
-
+suppressWarnings(library(pathogenGenomicsWorkshop)) # Our custom package for the current course
 ```
+
 ```{r eval=FALSE, echo=TRUE}
 
 # Load the required libraries
 library(ape) # For reading in sequence
 library(phangorn) # For testing substitution models and building and plotting the phylogeny
-#library(PathogenGenomicsWorkshopPackage) # Our custom package for the current course
-source("PathogenGenomicsWorkshop_FUNCTIONS_12-09-19.R") # REMOVE ONCE CUSTOM R PACKAGE MADE!
+library(pathogenGenomicsWorkshop) # Our custom package for the current course
 ```
 
 We are also going to create a variable that stores todays date - we'll use this when we are creating files. Here's how:
@@ -90,7 +88,7 @@ today <- format(Sys.Date(), "%d-%m-%y")
 A FASTA file stores a or multiple nucleotide sequences. Our FASTA file stores the nucleotides present at a subset of genomic positions for `48` different *M. bovis* genomes. Read it in using the following code:
 ```{r}
 # Read in the FASTA file
-fastaFile <- file.path("Data", "Wicklow_Mbovis.fasta")
+fastaFile <- system.file("extdata", "Wicklow_Mbovis.fasta", package = "pathogenGenomicsWorkshop")
 nucleotideAlignment <- read.dna(fastaFile, format = "fasta", as.character=TRUE)
 nucleotideAlignment <- toupper(nucleotideAlignment) # Convert the nucleotides to upper case
 ```
@@ -105,7 +103,7 @@ Notice by default nucleotides are stored in lower case, we don't like that so we
 We also have a file that tells us which position on the *M. bovis* genome each position in the FASTA file relates to. Lets read that in:
 ```{r}
 # Read in the genome positions
-positionsFile <- file.path("Data", "fastaPositions.txt")
+positionsFile <- system.file("extdata", "fastaPositions.txt", package = "pathogenGenomicsWorkshop")
 genomePositions <- read.table(positionsFile, header=TRUE)
 ```
 
@@ -128,6 +126,7 @@ Now, let's take a quick look at the FASTA file:
 ```{r echo=TRUE, message=FALSE, results="hide"}
 plotFASTA(nucleotideAlignment, pdfFileName=paste0("FullNucleotideAlignment_", today, ".pdf"))
 ```
+
 ```{r fig.align="center", fig.width=15, fig.height=7.5, echo=FALSE}
 plotFASTA(nucleotideAlignment)
 ```
