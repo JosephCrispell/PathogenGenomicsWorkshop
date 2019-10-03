@@ -1,0 +1,256 @@
+---
+title: "Pathogen Genomics Workshop"
+author: "Joseph Crispell"
+date: "`r format(Sys.Date(), '%d %b %Y')`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+Pathogens threaten the health of people and animals. Understand pathogen transmission can help us understand how to control it.
+
+Today we are going to be working with genomic data for the pathogen *Mycobacterium bovis*. *M. bovis* causes bovine tuberculosis in cattle and many other species. It costs millions to control. How can genomic data help?
+
+We'll use some genomic data sourced from infected cattle and wildlife to try and understand the role of wildlife. Wildlife species have been shown to harbour and transmit infection to cattle, we want to know if that is the case here.
+
+### Learning objectives
+
+- Be able to install and load different R packages
+- To load a FASTA nucleotide sequence file
+- To construct and plot a phylogenetic tree
+- Can understand why github can be useful
+- Able to build and use an R package
+
+## Step 1: Set your working directory
+
+I have created a working directory folder for us, you can download it from [here](https://github.com/JosephCrispell/PathogenGenomicsWorkshop/archive/master.zip).
+
+Unzip the folder and place it on your Desktop. Then we can set this folder to our working directory using the following code:
+
+```{r}
+# Set your working directory
+setwd(file.path("~", "Desktop", "PathogenGenomicsWorkshop", ""))
+```
+
+> QUESTION:<br>
+> 1. What is a working directory?
+
+## Step 1: Getting started
+
+Firstly, we are going to install some R packages that we'll use throughout the workshop. The packages are `ape`, `phangorn` and `PathogenGenomicsWorkshopPackage`. The first two packages are commonly used for phylogenetic analyses in R. The `PathogenGenomicsWorkshopPackage` is an R package that we have specifically developed for this course. It has a few functions that we'll use later on.
+
+Here is how to install the R packages:
+
+```{r eval=FALSE, echo=TRUE}
+# Installing the 'ape' package
+install.packages("ape", repos="https://cloud.r-project.org")
+
+# Installing the 'phangorn' package
+install.packages("phangorn", repos="https://cloud.r-project.org")
+
+# Installing the 'PathogenGenomicsWorkshopPackage' package
+#install.packages("devtools", repos="https://cloud.r-project.org")
+#devtools::install_github("JosephCrispell/PathogenGenomicsWorkshopPackage")
+```
+
+Once that is done, we can load the packages using the following code:
+```{r echo=FALSE, message=FALSE, results="hide"}
+# Load the required libraries
+suppressWarnings(library(ape)) # For reading in sequence
+suppressWarnings(library(phangorn)) # For testing substitution models and building and plotting the phylogeny
+#library(PathogenGenomicsWorkshopPackage) # Our custom package for the current course
+source("PathogenGenomicsWorkshop_FUNCTIONS_12-09-19.R") # REMOVE ONCE CUSTOM R PACKAGE MADE!
+
+```
+```{r eval=FALSE, echo=TRUE}
+
+# Load the required libraries
+library(ape) # For reading in sequence
+library(phangorn) # For testing substitution models and building and plotting the phylogeny
+#library(PathogenGenomicsWorkshopPackage) # Our custom package for the current course
+source("PathogenGenomicsWorkshop_FUNCTIONS_12-09-19.R") # REMOVE ONCE CUSTOM R PACKAGE MADE!
+```
+
+We are also going to create a variable that stores todays date - we'll use this when we are creating files. Here's how:
+
+```{r}
+# Get the current date
+today <- format(Sys.Date(), "%d-%m-%y")
+```
+
+> QUESTION:<br>
+> 1. Why create/use R packages?
+
+## Step 3: Reading in the FASTA file
+
+A FASTA file stores a or multiple nucleotide sequences. Our FASTA file stores the nucleotides present at a subset of genomic positions for `48` different *M. bovis* genomes. Read it in using the following code:
+```{r}
+# Read in the FASTA file
+fastaFile <- file.path("Data", "Wicklow_Mbovis.fasta")
+nucleotideAlignment <- read.dna(fastaFile, format = "fasta", as.character=TRUE)
+nucleotideAlignment <- toupper(nucleotideAlignment) # Convert the nucleotides to upper case
+```
+
+Notice by default nucleotides are stored in lower case, we don't like that so we've converted them to uppercase.
+
+> QUESTIONS:<br>
+> 1. Can anyone tell me what class of variable we have stored the sequences in?<br>
+> 2. Do we have `48` sequences?<br>
+> 3. How many positions are in the FASTA file?<br>
+
+We also have a file that tells us which position on the *M. bovis* genome each position in the FASTA file relates to. Lets read that in:
+```{r}
+# Read in the genome positions
+positionsFile <- file.path("Data", "fastaPositions.txt")
+genomePositions <- read.table(positionsFile, header=TRUE)
+```
+
+> EXERCISE:<br>
+> 1. Create the plot below:<br>
+
+```{r eval=TRUE, echo=FALSE, fig.align="center"}
+# Plot the positions of the FASTA positions
+hist(genomePositions$Position, breaks=1000, las=1,
+     main="Positions of sites in the FASTA nucleotide alignment",
+     xlab="Position")
+```
+
+The FASTA file contains only the variant positions on the reference genome based on the whole genome sequencing data for the 48 *M. bovis* isolates. 
+
+> QUESTION:<br>
+> 1. Why might there be areas of the genome with more variants?<br>
+
+Now, let's take a quick look at the FASTA file:
+```{r echo=TRUE, message=FALSE, results="hide"}
+plotFASTA(nucleotideAlignment, pdfFileName=paste0("FullNucleotideAlignment_", today, ".pdf"))
+```
+```{r fig.align="center", fig.width=15, fig.height=7.5, echo=FALSE}
+plotFASTA(nucleotideAlignment)
+```
+
+## Step 4: Cleaning up the FASTA file
+
+There are a lot of sites that aren't informative. They are the same in all the `48` sequences. We can clean up the alignment using the following code:
+
+```{r}
+# Count the nucleotides at each site in the alignment
+nucleotideCountsAtEachSite <- countNucleotidesAtEachSite(nucleotideAlignment)
+
+# Identify the uninformative sites
+uninformativeSites <- which(nucleotideCountsAtEachSite < 2)
+
+# Create a new nucleotide alignment without the uninformative sites
+nucleotideAlignmentInformative <- nucleotideAlignment[, -uninformativeSites]
+informativeGenomePositions <- genomePositions[-uninformativeSites, ]
+```
+
+> QUESTION:<br>
+> 1. What does line 5 in the above code block do?<br>
+
+Now, let's take another look at the alignment, how has it changed?
+
+```{r echo=TRUE, message=FALSE, results="hide", eval=FALSE}
+plotFASTA(nucleotideAlignmentInformative, pdfFileName=paste0("InformativeSitesAlignment_", today, ".pdf"))
+```
+```{r fig.align="center", fig.width=15, fig.height=7.5, echo=FALSE}
+plotFASTA(nucleotideAlignmentInformative)
+```
+
+> QUESTIONS:<br>
+> 1. Can anyone guess what the nucleotide sequence at the top of the plot is?<br>
+> 2. If we remove this sequence and then remove uninformative sites, how does the alignment change?<br>
+
+## Step 5: Extract the sequence metadata from the IDs
+
+As you will have seen the sequence labels contain some information about our sequences. Let's extract these data and store them in a `data.frame`:
+
+```{r}
+# Extract metadata from sequences
+sequenceInfo <- getSequenceInfoFromNames(rownames(nucleotideAlignment))
+
+# Take a quick look at the metadata
+head(sequenceInfo)
+```
+
+> EXERCISE:<br>
+> 1. Calculate the number of samples sourced from wildlife and the number sourced from cattle<br>
+
+## Step 6: Examine the quality of the nucleotide sequences
+
+We don't have extensive data on the quality of our nucleotide sequences available but we can something about their quality from the nucleotide alignment. There are some `N`s in the alignment. 
+
+> QUESTION:<br>
+> 1. What do `N`s in a nucleotide alignment mean?<br>
+
+Let's calculate the proportion of nucleotides in each sequence that are `N`s:
+```{r}
+# Calculate the proportion of Ns for each sequence
+proportionNsInInformativeSites <- calculateProportionNsOfEachSequence(nucleotideAlignmentInformative)
+```
+
+> EXERCISE:<br>
+> 1. Create the plot below:<br>
+
+```{r eval=TRUE, echo=FALSE, fig.align="center"}
+# Plot these values
+hist(proportionNsInInformativeSites, breaks=50, las=1, xlab="Proportion of Ns",
+     main="Quality of nucleotide sequences (informative sites only)")
+```
+
+There are a couple of nucleotide sequences that don't have data for ~8% of the genome sites.
+
+> QUESTION:<br>
+> 1. How might these differences in sequence quality impact our analyses?<br>
+
+## Step 7: Build a phylogenetic tree
+
+To build a phylogenetic tree we need to calculate the number of differences between each of our nucleotide sequences. We need to construct a genetic distance matrix:
+
+```{r}
+# Build a genetic distance matrix
+distances <- dist.dna(as.DNAbin(nucleotideAlignmentInformative), model="raw")
+```
+
+Note that in the code above, we had to change the class (format) that we were storing our nucleotide alignment in.
+
+Next, we'll build an initial neighbour-joining phylogenetic tree:
+
+```{r}
+# Build a quick initial phylogenetic tree
+initialNJTree <- nj(distances)
+```
+
+The neighbour joining algorithm is a fast method to construct a phylogenetic tree but it isn't very robust. We are now going to construct a tree using the Maximum Likelihood algorithm.
+
+> QUESTION:<br>
+> 1. Can anyone tell me why the Maximum Likelihood algorithm is a more robust tree building algorithm?<br>
+
+```{r, echo=FALSE, eval=TRUE, message=FALSE, results="hide"}
+# Load the maximum likelihood tree data object - don't want to run algorithm everytime! INCLUDE IN PACKAGE
+# distances
+# initialNJTree
+# fittingOutput
+# Maybe also include all the over data??
+
+```
+
+```{r eval=FALSE}
+# Convert the nucleotide sequences into the PHYDAT format
+sequencesInPhyDatFormat <- phyDat(nucleotideAlignmentInformative, type="DNA")
+
+# Compute likelihood of the initial Neighbour Joining tree given sequences
+likelihoodObject <- pml(initialNJTree, sequencesInPhyDatFormat)
+
+# Run maximum likelihood
+fittingOutput <- optim.pml(likelihoodObject,
+                           optNni = TRUE, # Optimise topology
+                           optInv = TRUE, # Optimise proportion of variable sites
+                           optBf = TRUE, # Optimise the base frequencies
+                           model = "HKY", # Substitution model
+                           rearrangement = "NNI", # Nearest Neighbour Interchanges
+                           control = pml.control(maxit=100000)) # Set the maximum number of iterations
+```
