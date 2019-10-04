@@ -1,3 +1,8 @@
+<img align="left" src="Logos/ucd.gif" width=12%>
+<img align="right" src="Logos/nuig.png" width=40%>
+
+<br/><br/><br/><br/><br/>
+
 # Pathogen Genomics Workshop
 ## Author: Joseph Crispell
 ## Licence: GPL-3
