@@ -9,7 +9,7 @@
 #library("roxygen2")
 
 ## Creating package
-#packageDirectory <- "/home/josephcrispell/Desktop/pathogenGenomicsWorkshop/"
+#packageDirectory <- "~/Desktop/pathogenGenomicsWorkshop/"
 #create(packageDirectory)
 
 ## Documenting changes

@@ -11,6 +11,8 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+---
+
 ## Introduction
 
 Pathogens threaten the health of people and animals. Understanding pathogen transmission can help us understand how to control it.
@@ -26,6 +28,8 @@ We'll use some genomic data sourced from infected cattle and wildlife to try and
 - Developed an understand and enthusiasm for github
 - Been introduced to constructing an R package
 
+---
+
 ## Step 1: Set your working directory
 
 I have created a working directory folder for us, you can download it from [here](https://github.com/JosephCrispell/PathogenGenomicsWorkshop/archive/master.zip).
@@ -40,7 +44,9 @@ setwd(file.path("~", "Desktop", ""))
 > QUESTION:<br>
 > 1. What is a working directory?
 
-## Step 1: Getting started
+---
+
+## Step 2: Getting started
 
 Firstly, we are going to install some R packages that we'll use throughout the workshop. The packages are `ape`, `phangorn` and `PathogenGenomicsWorkshopPackage`. The first two packages are commonly used for phylogenetic analyses in R. The `PathogenGenomicsWorkshopPackage` is an R package that we have specifically developed for this course. It has a few functions that we'll use later on.
 
@@ -84,12 +90,14 @@ today <- format(Sys.Date(), "%d-%m-%y")
 > QUESTION:<br>
 > 1. Why create/use R packages?
 
+---
+
 ## Step 3: Reading in the FASTA file
 
 A FASTA file stores one or multiple nucleotide sequences. Our FASTA file stores the nucleotides present at a subset of genomic positions for `48` different *M. bovis* genomes. Read it in using the following code:
 ```{r}
 # Read in the FASTA file
-fastaFile <- system.file("extdata", "Wicklow_Mbovis.fasta", package = "pathogenGenomicsWorkshop")
+fastaFile <- system.file("extdata", "Mbovis.fasta", package = "pathogenGenomicsWorkshop")
 nucleotideAlignment <- read.dna(fastaFile, format = "fasta", as.character=TRUE)
 nucleotideAlignment <- toupper(nucleotideAlignment) # Convert the nucleotides to upper case
 ```
@@ -104,7 +112,7 @@ Notice by default nucleotides are stored in lower case, we don't like that so we
 We also have a file that tells us which position on the *M. bovis* genome each position in the FASTA file relates to. Let's read that in:
 ```{r}
 # Read in the genome positions
-positionsFile <- system.file("extdata", "fastaPositions.txt", package = "pathogenGenomicsWorkshop")
+positionsFile <- system.file("extdata", "Mbovis_FASTApositions.txt", package = "pathogenGenomicsWorkshop")
 genomePositions <- read.table(positionsFile, header=TRUE)
 ```
 
@@ -131,6 +139,8 @@ plotFASTA(nucleotideAlignment, pdfFileName=paste0("FullNucleotideAlignment_", to
 ```{r fig.align="center", fig.width=15, fig.height=7.5, echo=FALSE}
 plotFASTA(nucleotideAlignment)
 ```
+
+---
 
 ## Step 4: Cleaning up the FASTA file
 
@@ -165,6 +175,8 @@ plotFASTA(nucleotideAlignmentInformative)
 > 1. Can anyone guess what the nucleotide sequence at the top of the plot is?<br>
 > 2. If we remove this sequence and then remove uninformative sites, how does the alignment change?<br>
 
+---
+
 ## Step 5: Extract the sequence metadata from the IDs
 
 As you will have seen the sequence labels contain some information about our sequences. Let's extract these data and store them in a `data.frame`:
@@ -179,6 +191,8 @@ head(sequenceInfo)
 
 > EXERCISE:<br>
 > 1. Calculate the number of samples sourced from wildlife and the number sourced from cattle<br>
+
+---
 
 ## Step 6: Examine the quality of the nucleotide sequences
 
@@ -206,6 +220,8 @@ There are a couple of nucleotide sequences that don't have data for ~8% of the g
 
 > QUESTION:<br>
 > 1. How might these differences in sequence quality impact our analyses?<br>
+
+---
 
 ## Step 7: Build a phylogenetic tree
 
@@ -264,6 +280,8 @@ bootstrapResults <- bootstrap.pml(fittingOutput,
                                   control = pml.control(maxit=100000)) # Set maximum iteration number
 ```
 
+---
+
 ## Step 8: Plotting the phylogenetic tree
 
 Now that we have constructed and bootstrapped our maximum likelihood phylogenetic tree, let's take a look at it. First we'll need to extract the phylogeny from our bootstrapping output:
@@ -285,7 +303,10 @@ With the phylogeny stored as an object, we are going to create a simple plot:
 # Convert the branch lengths to approximate SNPs
 mlTreeBS$edge.length <- mlTreeBS$edge.length * ncol(nucleotideAlignmentInformative)
 
-# Plot the phylogeny - add in bootstrap values and species shapes
+# Set the plotting margins
+par(mar=c(0.1, 0.1, 0.1, 0.1))
+
+# Plot the phylogeny 
 plot.phylo(mlTreeBS, show.tip.label = TRUE, edge.width = 2, type = "phylogram", edge.color = "grey")
 ```
 
@@ -328,6 +349,8 @@ legend("right", legend=c("Wildlife", "Cow"), pch=c(19, 17), col=c("red", "blue")
 > 2. Does that have any implications for control?<br>
 > 3. What further analyses could we use on these data?<br>
 
+---
+
 ## Step 9: Wrapping up
 
 Today we have analyses nucleotide sequence data derived from whole genome sequence *M. bovis* data. *M. bovis* is an important bacterial pathogen. 
@@ -335,6 +358,8 @@ Today we have analyses nucleotide sequence data derived from whole genome sequen
 Our samples were sourced from infected cattle and wildlife here in Ireland. Using these data, we are hoping to learn about what role wildlife are playing in Ireland's bovine tuberculosis problem.
 
 Alongside the analyses of the *M. bovis* data, we've introduced aspects of programming in R, using github and creating and using an R package.
+
+---
 
 ## Some useful resources
 
@@ -345,6 +370,23 @@ To finish up, we would like to point out some helpful resources:
 - [Ask and answer questions](https://stackoverflow.com/questions/tagged/r)
 - [Building an R package](https://hilaryparker.com/2014/04/29/writing-an-r-package-from-scratch/)
 - [Getting started with github](https://guides.github.com/activities/hello-world/)
+
+---
+
+## Additional dataset
+
+If you've raced through the analyses of the *M. bovis* data. We have added an *Zaire ebolavirus* (Ebola virus) nucleotide sequence that you could work on. Ebola virus presents a massive risk to human health. The genomic data you'll examine is a subset of that sourced from infected people in West Africa [more information here](https://www.nature.com/articles/nature22040).
+
+There are some really nice visualisations of these data can be found [here](https://nextstrain.org/ebola). You can get started with the Ebola virus data with the following code:
+```{r eval=FALSE}
+# Read in the FASTA file
+fastaFile <- system.file("extdata", "ebola_parsed.fasta", package = "pathogenGenomicsWorkshop")
+nucleotideAlignment <- read.dna(fastaFile, format = "fasta", as.character=TRUE)
+
+# Read in the genome positions
+positionsFile <- system.file("extdata", "ebola_FASTApositions.txt", package = "pathogenGenomicsWorkshop")
+genomePositions <- read.table(positionsFile, header=TRUE)
+```
 
 ## TO DO
 
@@ -359,3 +401,5 @@ To finish up, we would like to point out some helpful resources:
 # Test on MAC and WINDOWS machines
 
 # Remove uninformative sites, and reference?
+
+# Remove genome positions?

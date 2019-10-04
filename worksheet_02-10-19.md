@@ -9,6 +9,8 @@ output:
 
 
 
+---
+
 ## Introduction
 
 Pathogens threaten the health of people and animals. Understanding pathogen transmission can help us understand how to control it.
@@ -23,6 +25,8 @@ We'll use some genomic data sourced from infected cattle and wildlife to try and
 - To construct and plot a phylogenetic tree
 - Developed an understand and enthusiasm for github
 - Been introduced to constructing an R package
+
+---
 
 ## Step 1: Set your working directory
 
@@ -39,7 +43,9 @@ setwd(file.path("~", "Desktop", ""))
 > QUESTION:<br>
 > 1. What is a working directory?
 
-## Step 1: Getting started
+---
+
+## Step 2: Getting started
 
 Firstly, we are going to install some R packages that we'll use throughout the workshop. The packages are `ape`, `phangorn` and `PathogenGenomicsWorkshopPackage`. The first two packages are commonly used for phylogenetic analyses in R. The `PathogenGenomicsWorkshopPackage` is an R package that we have specifically developed for this course. It has a few functions that we'll use later on.
 
@@ -79,6 +85,8 @@ today <- format(Sys.Date(), "%d-%m-%y")
 
 > QUESTION:<br>
 > 1. Why create/use R packages?
+
+---
 
 ## Step 3: Reading in the FASTA file
 
@@ -124,6 +132,8 @@ plotFASTA(nucleotideAlignment, pdfFileName=paste0("FullNucleotideAlignment_", to
 
 <img src="worksheet_02-10-19_files/figure-html/unnamed-chunk-10-1.png" style="display: block; margin: auto;" />
 
+---
+
 ## Step 4: Cleaning up the FASTA file
 
 There are a lot of sites that aren't informative. They are the same in all the `48` sequences. We can clean up the alignment using the following code:
@@ -157,6 +167,8 @@ plotFASTA(nucleotideAlignmentInformative,
 > 1. Can anyone guess what the nucleotide sequence at the top of the plot is?<br>
 > 2. If we remove this sequence and then remove uninformative sites, how does the alignment change?<br>
 
+---
+
 ## Step 5: Extract the sequence metadata from the IDs
 
 As you will have seen the sequence labels contain some information about our sequences. Let's extract these data and store them in a `data.frame`:
@@ -183,6 +195,8 @@ head(sequenceInfo)
 > EXERCISE:<br>
 > 1. Calculate the number of samples sourced from wildlife and the number sourced from cattle<br>
 
+---
+
 ## Step 6: Examine the quality of the nucleotide sequences
 
 We don't have extensive data on the quality of our nucleotide sequences available but we can learn something about their quality from the nucleotide alignment. There are some `N`s in the alignment. 
@@ -206,6 +220,8 @@ There are a couple of nucleotide sequences that don't have data for ~8% of the g
 
 > QUESTION:<br>
 > 1. How might these differences in sequence quality impact our analyses?<br>
+
+---
 
 ## Step 7: Build a phylogenetic tree
 
@@ -269,6 +285,8 @@ bootstrapResults <- bootstrap.pml(fittingOutput,
                                   control = pml.control(maxit=100000)) # Set maximum iteration number
 ```
 
+---
+
 ## Step 8: Plotting the phylogenetic tree
 
 Now that we have constructed and bootstrapped our maximum likelihood phylogenetic tree, let's take a look at it. First we'll need to extract the phylogeny from our bootstrapping output:
@@ -289,7 +307,10 @@ With the phylogeny stored as an object, we are going to create a simple plot:
 # Convert the branch lengths to approximate SNPs
 mlTreeBS$edge.length <- mlTreeBS$edge.length * ncol(nucleotideAlignmentInformative)
 
-# Plot the phylogeny - add in bootstrap values and species shapes
+# Set the plotting margins
+par(mar=c(0.1, 0.1, 0.1, 0.1))
+
+# Plot the phylogeny 
 plot.phylo(mlTreeBS, show.tip.label = TRUE, edge.width = 2, type = "phylogram", edge.color = "grey")
 ```
 
@@ -336,6 +357,8 @@ legend("right", legend=c("Wildlife", "Cow"), pch=c(19, 17), col=c("red", "blue")
 > 2. Does that have any implications for control?<br>
 > 3. What further analyses could we use on these data?<br>
 
+---
+
 ## Step 9: Wrapping up
 
 Today we have analyses nucleotide sequence data derived from whole genome sequence *M. bovis* data. *M. bovis* is an important bacterial pathogen. 
@@ -343,6 +366,8 @@ Today we have analyses nucleotide sequence data derived from whole genome sequen
 Our samples were sourced from infected cattle and wildlife here in Ireland. Using these data, we are hoping to learn about what role wildlife are playing in Ireland's bovine tuberculosis problem.
 
 Alongside the analyses of the *M. bovis* data, we've introduced aspects of programming in R, using github and creating and using an R package.
+
+---
 
 ## Some useful resources
 
@@ -367,5 +392,3 @@ To finish up, we would like to point out some helpful resources:
 # Test on MAC and WINDOWS machines
 
 # Remove uninformative sites, and reference?
-
-# Add in resources section (beginning or end?)
