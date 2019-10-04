@@ -14,12 +14,13 @@
 
 The SFI Centre for Research Training in Genomics Data Science ([visit the website](https://genomicsdatascience.ie/)) has organised a two day workshop on the 7<sup>th</sup> & 8<sup>th</sup> of October (2019). As part of this workshop, we are running a Pathogen Genomics session.
 
-Our two session aims to introduce the 2019 cohort of PhD student to building a phylogenetic tree in R. We have the following learning objections:
+Our two session aims to introduce the 2019 cohort of PhD student to building a phylogenetic tree in R. After our workshop we hope that you have learnt about:
 
-- To load a FASTA nucleotide sequence file
-- To construct and plot a phylogenetic tree
-- Developed an understand and enthusiasm for github
-- Been introduced to constructing an R package
+- Programming in R
+- Loading and using a FASTA nucleotide file
+- Constructing and plotting a phylogenetic tree
+- Why github is really useful
+- Using and building R packages
 
 In preparation for the current workshop, we have created the current respository. This respository stores an R package `pathogenGenomicsWorkshop` that we created to act as an aide and teaching tool in the workshop.
 
