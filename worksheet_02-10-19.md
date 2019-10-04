@@ -15,30 +15,41 @@ output:
 
 Pathogens threaten the health of people and animals. Understanding pathogen transmission can help us understand how to control it.
 
-Today we are going to be working with genomic data for the pathogen *Mycobacterium bovis*. *M. bovis* causes bovine tuberculosis in cattle and many other species. It costs millions to control. How can genomic data help?
+Today we are going to be working with genomic data for the pathogen *Mycobacterium bovis*. *M. bovis* causes bovine tuberculosis in cattle and many other species. It costs Ireland millions to control. How can genomic data help?
 
-We'll use some genomic data sourced from infected cattle and wildlife to try and understand the role of wildlife. Wildlife species have been shown to harbour and transmit infection to cattle, we want to know if that is the case here.
+We'll use some *M. bovis* genomic data sourced from infected cattle and wildlife to try and understand the role of wildlife. Wildlife species have been shown to harbour and transmit infection to cattle, we want to know if that is the case here in Ireland.
 
 ### Learning objectives
 
-- To load a FASTA nucleotide sequence file
-- To construct and plot a phylogenetic tree
-- Developed an understand and enthusiasm for github
-- Been introduced to constructing an R package
+After our workshop we hope that you have learnt about:
+- Programming in R
+- Loading and using a FASTA nucleotide file
+- Constructing and plotting a phylogenetic tree
+- Why github is really useful
+- Using and building R packages
 
 ---
 
 ## Step 1: Set your working directory
 
-I have created a working directory folder for us, you can download it from [here](https://github.com/JosephCrispell/PathogenGenomicsWorkshop/archive/master.zip).
+We'll be creating a few different plots over the course of todays workshop. As we progress, we would also recommend that you working along with us with your R script.
 
-Unzip the folder and place it on your Desktop. Then we can set this folder to our working directory using the following code:
+We'd recommend storing today's work (plots and your script) in a single folder. We'll start that process by creating a folder and setting it up as our working directory:
 
 
 ```r
+# Get the current date
+today <- format(Sys.Date(), "%d-%m-%y")
+
+# Create a new directory on our desktop to store todays outputs
+directory <- file.path("~", "Desktop", paste0("CRT_PathogenGenomicsWorkshop_", today), "")
+dir.create(directory)
+
 # Set your working directory
-setwd(file.path("~", "Desktop", ""))
+setwd(directory)
 ```
+
+
 
 > QUESTION:<br>
 > 1. What is a working directory?
@@ -47,24 +58,26 @@ setwd(file.path("~", "Desktop", ""))
 
 ## Step 2: Getting started
 
-Firstly, we are going to install some R packages that we'll use throughout the workshop. The packages are `ape`, `phangorn` and `PathogenGenomicsWorkshopPackage`. The first two packages are commonly used for phylogenetic analyses in R. The `PathogenGenomicsWorkshopPackage` is an R package that we have specifically developed for this course. It has a few functions that we'll use later on.
+Next, we are going to install some R packages that we'll use throughout the workshop. The packages are `ape`, `phangorn` and `PathogenGenomicsWorkshopPackage`. The first two packages are commonly used for phylogenetic analyses in R. 
 
-Here is how to install the R packages:
+The `PathogenGenomicsWorkshopPackage` is an R package that we have specifically developed for this course. It has a few functions that we'll use later on.
+
+To install the R packages, you can use the following code:
 
 
 ```r
-# Installing the 'ape' package
+# Install the 'ape' package
 install.packages("ape", repos="https://cloud.r-project.org")
 
-# Installing the 'phangorn' package
+# Install the 'phangorn' package
 install.packages("phangorn", repos="https://cloud.r-project.org")
 
-# Installing the 'pathogenGenomicsPackage' package
-install.packages("devtools", repos="https://cloud.r-project.org")
+# Install the 'pathogenGenomicsPackage' package
+install.packages("devtools", repos="https://cloud.r-project.org") # We need devtools to install packages from github
 devtools::install_github("JosephCrispell/pathogenGenomicsWorkshop")
 ```
 
-Once that is done, we can load the packages using the following code:
+With the packages successfully installed, we can now load them:
 
 
 
@@ -75,14 +88,6 @@ library(phangorn) # For testing substitution models and building and plotting th
 library(pathogenGenomicsWorkshop) # Our custom package for the current course
 ```
 
-We are also going to create a variable that stores today's date - we'll use this when we are creating files. Here's how:
-
-
-```r
-# Get the current date
-today <- format(Sys.Date(), "%d-%m-%y")
-```
-
 > QUESTION:<br>
 > 1. Why create/use R packages?
 
@@ -90,41 +95,41 @@ today <- format(Sys.Date(), "%d-%m-%y")
 
 ## Step 3: Reading in the FASTA file
 
-A FASTA file stores one or multiple nucleotide sequences. Our FASTA file stores the nucleotides present at a subset of genomic positions for `48` different *M. bovis* genomes. Read it in using the following code:
+A FASTA file stores one or multiple nucleotide sequences. Our FASTA file stores the nucleotides present at a subset of genomic positions in `48` different *M. bovis* genomes. We can read in our *M. bovis* FASTA file with the following code:
 
 ```r
 # Read in the FASTA file
-fastaFile <- system.file("extdata", "Wicklow_Mbovis.fasta", package = "pathogenGenomicsWorkshop")
+fastaFile <- system.file("extdata", "Mbovis.fasta", package = "pathogenGenomicsWorkshop")
 nucleotideAlignment <- read.dna(fastaFile, format = "fasta", as.character=TRUE)
-nucleotideAlignment <- toupper(nucleotideAlignment) # Convert the nucleotides to upper case
+
+# Convert the nucleotides to upper case
+nucleotideAlignment <- toupper(nucleotideAlignment)
 ```
 
-Notice by default nucleotides are stored in lower case, we don't like that so we've converted them to uppercase.
+Notice by default nucleotides are stored in lower case, we've chosen to convert them to uppercase.
 
 > QUESTIONS:<br>
 > 1. Can anyone tell me what class of variable we have stored the sequences in?<br>
 > 2. Do we have `48` sequences?<br>
 > 3. How many positions are in the FASTA file?<br>
 
-We also have a file that tells us which position on the *M. bovis* genome each position in the FASTA file relates to. Let's read that in:
+We also have a file that tells us which position on the *M. bovis* genome that each site in the FASTA file relates to. Let's read that in:
 
 ```r
 # Read in the genome positions
-positionsFile <- system.file("extdata", "fastaPositions.txt", package = "pathogenGenomicsWorkshop")
+positionsFile <- system.file("extdata", "Mbovis_FASTApositions.txt", package = "pathogenGenomicsWorkshop")
 genomePositions <- read.table(positionsFile, header=TRUE)
 ```
 
 > EXERCISE:<br>
-> 1. Create the plot below:<br>
+> 1. Create the plot below<br>
 
 <img src="worksheet_02-10-19_files/figure-html/unnamed-chunk-8-1.png" style="display: block; margin: auto;" />
-
-The FASTA file contains only the variant positions on the reference genome based on the whole genome sequencing data for the 48 *M. bovis* isolates. 
 
 > QUESTION:<br>
 > 1. Why might there be areas of the genome with more variants?<br>
 
-Now, let's take a quick look at the FASTA file:
+Let's also take a quick look at the FASTA file. The code below will create a plot that is saved as a PDF in your working directory:
 
 ```r
 plotFASTA(nucleotideAlignment, pdfFileName=paste0("FullNucleotideAlignment_", today, ".pdf"))
@@ -136,7 +141,7 @@ plotFASTA(nucleotideAlignment, pdfFileName=paste0("FullNucleotideAlignment_", to
 
 ## Step 4: Cleaning up the FASTA file
 
-There are a lot of sites that aren't informative. They are the same in all the `48` sequences. We can clean up the alignment using the following code:
+There are a lot of sites in the *M. bovis* alignment that aren't informative. We can clean up the alignment using the code below.
 
 
 ```r
@@ -151,8 +156,9 @@ nucleotideAlignmentInformative <- nucleotideAlignment[, -uninformativeSites]
 informativeGenomePositions <- genomePositions[-uninformativeSites, ]
 ```
 
-> QUESTION:<br>
-> 1. What does line 5 in the above code block do?<br>
+> QUESTIONS:<br>
+> 1. What is an uninformative site?<br>
+> 2. What does line 5 in the above code block do?<br>
 
 Now, let's take another look at the alignment, how has it changed?
 
@@ -165,13 +171,13 @@ plotFASTA(nucleotideAlignmentInformative,
 
 > QUESTIONS:<br>
 > 1. Can anyone guess what the nucleotide sequence at the top of the plot is?<br>
-> 2. If we remove this sequence and then remove uninformative sites, how does the alignment change?<br>
+> 2. Could removing uninformative sites have any effect?<br>
 
 ---
 
 ## Step 5: Extract the sequence metadata from the IDs
 
-As you will have seen the sequence labels contain some information about our sequences. Let's extract these data and store them in a `data.frame`:
+As you will have seen, the sequence labels in our alignment contain some information about our sequences. Let's extract these data and store them in a `data.frame`:
 
 
 ```r
@@ -367,9 +373,7 @@ Our samples were sourced from infected cattle and wildlife here in Ireland. Usin
 
 Alongside the analyses of the *M. bovis* data, we've introduced aspects of programming in R, using github and creating and using an R package.
 
----
-
-## Some useful resources
+### Some useful resources
 
 To finish up, we would like to point out some helpful resources:
 
@@ -378,17 +382,53 @@ To finish up, we would like to point out some helpful resources:
 - [Ask and answer questions](https://stackoverflow.com/questions/tagged/r)
 - [Building an R package](https://hilaryparker.com/2014/04/29/writing-an-r-package-from-scratch/)
 - [Getting started with github](https://guides.github.com/activities/hello-world/)
+- [Using R markdown](https://rstudio.com/wp-content/uploads/2015/02/rmarkdown-cheatsheet.pdf)
+
+---
+
+## Additional dataset
+
+If you've raced through the analyses of the *M. bovis* data. We have added an *Zaire ebolavirus* (Ebola virus) nucleotide sequence that you could work on. Ebola virus presents a massive risk to human health. The genomic data you'll examine is a subset of that sourced from infected people in West Africa [more information here](https://www.nature.com/articles/nature22040).
+
+There are some really nice visualisations of these data can be found [here](https://nextstrain.org/ebola). You can get started with the Ebola virus data with the following code:
+
+```r
+# Read in the FASTA file
+fastaFile <- system.file("extdata", "ebola_parsed.fasta", package = "pathogenGenomicsWorkshop")
+nucleotideAlignment <- read.dna(fastaFile, format = "fasta", as.character=TRUE)
+
+# Read in the genome positions
+positionsFile <- system.file("extdata", "ebola_FASTApositions.txt", package = "pathogenGenomicsWorkshop")
+genomePositions <- read.table(positionsFile, header=TRUE)
+```
+
+---
+
+## Challenge
+
+If you're having no trouble with the workshop content, take a look at the functions in our `pathogenGenomicsWorkshop` package. 
+
+**Can you improve them?**
+
+You'll find the code for each of the functions [here](https://github.com/JosephCrispell/pathogenGenomicsWorkshop/blob/master/R/pathogenGenomicsWorkshop.R). The `system.time()` function might be useful to calculate how long a function takes.
+
 
 ## TO DO
 
-# Set up a different example: ebola.fasta (https://github.com/nextstrain/ebola/blob/master/example_data/ebola.fasta)
-- Need to edit the sequence names - get these to work with the metadata extraction function
-- Not sure if it is useful to include these data?
-
 # Remove the boostrapping?
 
-# SIMPLIFY!!!
+# Remove uninformative sites
+
+# Remove the reference?
+
+# Remove genome positions?
 
 # Test on MAC and WINDOWS machines
 
-# Remove uninformative sites, and reference?
+# Make talking notes
+- Everyone working together
+- Main hopes from the workshop
+- Challenges and extra data at the end
+- Guage experience levels in the group
+- Move between github, R and html worksheet
+- Hope for some engagement with exercises and questions
