@@ -422,16 +422,14 @@ You'll find the code for each of the functions [here](https://github.com/JosephC
 
 # Make talking notes
 - Further analyses? Bayesian tree building. Ancestral traits analysis. Spatial + temporal information.
-
-# Email Steve
-- Worksheet
-- R and package installing instructions
-- Brief description of the workshop
-
-# Update the learning objectives on README
 - Everyone working together
 - Main hopes from the workshop
 - Challenges and extra data at the end
 - Guage experience levels in the group
 - Move between github, R and html worksheet
 - Hope for some engagement with exercises and questions
+
+# Email Steve
+- Worksheet
+- R and package installing instructions
+- Brief description of the workshop
