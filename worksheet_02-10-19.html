@@ -344,20 +344,20 @@ proportionNsInInformativeSites &lt;- calculateProportionNsOfEachSequence(nucleot
 <pre class="r"><code># Build a genetic distance matrix
 distances &lt;- dist.dna(as.DNAbin(nucleotideAlignmentInformative), model=&quot;raw&quot;)</code></pre>
 <p>Note that in the code above, we had to change the class (format) that we were storing our nucleotide alignment in.</p>
-<p>Next, we’ll build an initial neighbour-joining phylogenetic tree:</p>
+<p>Using the genetic distance matrix, we’ll build an initial neighbour-joining phylogenetic tree:</p>
 <pre class="r"><code># Build a quick initial phylogenetic tree
 initialNJTree &lt;- nj(distances)</code></pre>
 <p>The neighbour joining algorithm is a fast method to construct a phylogenetic tree but it isn’t very robust. We are now going to construct a tree using the Maximum Likelihood algorithm. In addition, we are going to use bootstrapping to investigate the robusting of the phylogenetic tree structure.</p>
 <blockquote>
-<p>QUESTIONS:<br> 1. Why the Maximum Likelihood algorithm is a more robust tree building algorithm?<br> 2. How does bootstrapping work?<br></p>
+<p>QUESTIONS:<br> 1. Why is the Maximum Likelihood algorithm a more robust tree building algorithm?<br> 2. How does bootstrapping work?<br></p>
 </blockquote>
-<p>To prepare to build our phylogeny, we’ll construct a likelihood object using an initial tree and our nucleotide alignment:</p>
+<p>To prepare to build our Maximum Likelihood phylogeny, we’ll construct a likelihood object using an initial tree and our nucleotide alignment:</p>
 <pre class="r"><code># Convert the nucleotide sequences into the PHYDAT format
 sequencesInPhyDatFormat &lt;- phyDat(nucleotideAlignmentInformative, type=&quot;DNA&quot;)
 
 # Compute likelihood of the initial Neighbour Joining tree given sequences
 likelihoodObject &lt;- pml(initialNJTree, sequencesInPhyDatFormat)</code></pre>
-<p>With that object, we’ll first run our maximum likelihood algorithm without bootstrapping:</p>
+<p>With the likelihood object, we’ll first run our maximum likelihood algorithm without bootstrapping:</p>
 <pre class="r"><code># Run maximum likelihood
 fittingOutput &lt;- optim.pml(likelihoodObject,
                            optNni = TRUE, # Optimise topology
@@ -369,8 +369,8 @@ fittingOutput &lt;- optim.pml(likelihoodObject,
 <p>Lastly, now we’ll take the output of our maximum likelihood analysis and feed it into a bootstrapping analysis:</p>
 <pre class="r"><code># Build a bootstrapped maximum likelihood phylogeny
 bootstrapResults &lt;- bootstrap.pml(fittingOutput,
-                                  bs = 100,
-                                  jumble = TRUE,
+                                  bs = 100, # Number of bootstraps
+                                  jumble = TRUE, # Jumble the order of the sequences
                                   control = pml.control(maxit=100000)) # Set maximum iteration number</code></pre>
 <hr />
 </div>
@@ -378,7 +378,7 @@ bootstrapResults &lt;- bootstrap.pml(fittingOutput,
 <h2>Step 8: Plotting the phylogenetic tree</h2>
 <p>Now that we have constructed and bootstrapped our maximum likelihood phylogenetic tree, let’s take a look at it. First we’ll need to extract the phylogeny from our bootstrapping output:</p>
 <pre class="r"><code># Get phylogenetic tree with bootstrap values
-# Returns phylogenetic tree with bootstrap values as node labels
+# NOTE: plotBS() function returns phylogenetic tree with bootstrap values as node labels
 mlTreeBS &lt;- plotBS(fittingOutput$tree, bootstrapResults, type=&quot;fan&quot;)</code></pre>
 <p>With the phylogeny stored as an object, we are going to create a simple plot:</p>
 <pre class="r"><code># Convert the branch lengths to approximate SNPs
@@ -460,7 +460,7 @@ genomePositions &lt;- read.table(positionsFile, header=TRUE)</code></pre>
 <h2>Challenge</h2>
 <p>If you’re having no trouble with the workshop content, take a look at the functions in our <code>pathogenGenomicsWorkshop</code> package.</p>
 <p><strong>Can you improve them?</strong></p>
-<p>You’ll find the code for each of the functions <a href="https://github.com/JosephCrispell/pathogenGenomicsWorkshop/blob/master/R/pathogenGenomicsWorkshop.R">here</a>. The <code>system.time()</code> function might be useful to calculate how long a function takes.</p>
+<p>You’ll find the code for each of the functions <a href="https://github.com/JosephCrispell/pathogenGenomicsWorkshop/blob/master/R/pathogenGenomicsWorkshop.R">here</a>. The <code>system.time()</code> function might be useful to calculate how long a function takes, and see if you can make it faster!</p>
 </div>
 <div id="to-do" class="section level2">
 <h2>TO DO</h2>
@@ -469,7 +469,7 @@ genomePositions &lt;- read.table(positionsFile, header=TRUE)</code></pre>
 <h1>Remove the boostrapping?</h1>
 </div>
 <div id="remove-uninformative-sites" class="section level1">
-<h1>Remove uninformative sites</h1>
+<h1>Remove uninformative sites?</h1>
 </div>
 <div id="remove-the-reference" class="section level1">
 <h1>Remove the reference?</h1>
@@ -482,6 +482,20 @@ genomePositions &lt;- read.table(positionsFile, header=TRUE)</code></pre>
 </div>
 <div id="make-talking-notes" class="section level1">
 <h1>Make talking notes</h1>
+<ul>
+<li>Further analyses? Bayesian tree building. Ancestral traits analysis. Spatial + temporal information.</li>
+</ul>
+</div>
+<div id="email-steve" class="section level1">
+<h1>Email Steve</h1>
+<ul>
+<li>Worksheet</li>
+<li>R and package installing instructions</li>
+<li>Brief description of the workshop</li>
+</ul>
+</div>
+<div id="update-the-learning-objectives-on-readme" class="section level1">
+<h1>Update the learning objectives on README</h1>
 <ul>
 <li>Everyone working together</li>
 <li>Main hopes from the workshop</li>

@@ -244,7 +244,7 @@ distances <- dist.dna(as.DNAbin(nucleotideAlignmentInformative), model="raw")
 
 Note that in the code above, we had to change the class (format) that we were storing our nucleotide alignment in.
 
-Next, we'll build an initial neighbour-joining phylogenetic tree:
+Using the genetic distance matrix, we'll build an initial neighbour-joining phylogenetic tree:
 
 ```{r}
 # Build a quick initial phylogenetic tree
@@ -254,10 +254,10 @@ initialNJTree <- nj(distances)
 The neighbour joining algorithm is a fast method to construct a phylogenetic tree but it isn't very robust. We are now going to construct a tree using the Maximum Likelihood algorithm. In addition, we are going to use bootstrapping to investigate the robusting of the phylogenetic tree structure.
 
 > QUESTIONS:<br>
-> 1. Why the Maximum Likelihood algorithm is a more robust tree building algorithm?<br>
+> 1. Why is the Maximum Likelihood algorithm a more robust tree building algorithm?<br>
 > 2. How does bootstrapping work?<br>
 
-To prepare to build our phylogeny, we'll construct a likelihood object using an initial tree and our nucleotide alignment:
+To prepare to build our Maximum Likelihood phylogeny, we'll construct a likelihood object using an initial tree and our nucleotide alignment:
 
 ```{r eval=FALSE}
 # Convert the nucleotide sequences into the PHYDAT format
@@ -267,7 +267,7 @@ sequencesInPhyDatFormat <- phyDat(nucleotideAlignmentInformative, type="DNA")
 likelihoodObject <- pml(initialNJTree, sequencesInPhyDatFormat)
 ```
 
-With that object, we'll first run our maximum likelihood algorithm without bootstrapping:
+With the likelihood object, we'll first run our maximum likelihood algorithm without bootstrapping:
 
 ```{r eval=FALSE}
 # Run maximum likelihood
@@ -285,8 +285,8 @@ Lastly, now we'll take the output of our maximum likelihood analysis and feed it
 ```{r eval=FALSE}
 # Build a bootstrapped maximum likelihood phylogeny
 bootstrapResults <- bootstrap.pml(fittingOutput,
-                                  bs = 100,
-                                  jumble = TRUE,
+                                  bs = 100, # Number of bootstraps
+                                  jumble = TRUE, # Jumble the order of the sequences
                                   control = pml.control(maxit=100000)) # Set maximum iteration number
 ```
 
@@ -298,7 +298,7 @@ Now that we have constructed and bootstrapped our maximum likelihood phylogeneti
 
 ```{r eval=FALSE}
 # Get phylogenetic tree with bootstrap values
-# Returns phylogenetic tree with bootstrap values as node labels
+# NOTE: plotBS() function returns phylogenetic tree with bootstrap values as node labels
 mlTreeBS <- plotBS(fittingOutput$tree, bootstrapResults, type="fan")
 ```
 
@@ -405,14 +405,14 @@ If you're having no trouble with the workshop content, take a look at the functi
 
 **Can you improve them?**
 
-You'll find the code for each of the functions [here](https://github.com/JosephCrispell/pathogenGenomicsWorkshop/blob/master/R/pathogenGenomicsWorkshop.R). The `system.time()` function might be useful to calculate how long a function takes.
+You'll find the code for each of the functions [here](https://github.com/JosephCrispell/pathogenGenomicsWorkshop/blob/master/R/pathogenGenomicsWorkshop.R). The `system.time()` function might be useful to calculate how long a function takes, and see if you can make it faster!
 
 
 ## TO DO
 
 # Remove the boostrapping?
 
-# Remove uninformative sites
+# Remove uninformative sites?
 
 # Remove the reference?
 
@@ -421,6 +421,14 @@ You'll find the code for each of the functions [here](https://github.com/JosephC
 # Test on MAC and WINDOWS machines
 
 # Make talking notes
+- Further analyses? Bayesian tree building. Ancestral traits analysis. Spatial + temporal information.
+
+# Email Steve
+- Worksheet
+- R and package installing instructions
+- Brief description of the workshop
+
+# Update the learning objectives on README
 - Everyone working together
 - Main hopes from the workshop
 - Challenges and extra data at the end
