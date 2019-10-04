@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Introduction
 
-Pathogens threaten the health of people and animals. Understand pathogen transmission can help us understand how to control it.
+Pathogens threaten the health of people and animals. Understanding pathogen transmission can help us understand how to control it.
 
 Today we are going to be working with genomic data for the pathogen *Mycobacterium bovis*. *M. bovis* causes bovine tuberculosis in cattle and many other species. It costs millions to control. How can genomic data help?
 
@@ -21,9 +21,11 @@ We'll use some genomic data sourced from infected cattle and wildlife to try and
 
 ### Learning objectives
 
-- Be able to install and load different R packages
 - To load a FASTA nucleotide sequence file
 - To construct and plot a phylogenetic tree
+- Developed an understand and enthusiasm for github
+- Been introduced to constructing an R package
+
 ## Step 1: Set your working directory
 
 I have created a working directory folder for us, you can download it from [here](https://github.com/JosephCrispell/PathogenGenomicsWorkshop/archive/master.zip).
@@ -72,7 +74,7 @@ library(phangorn) # For testing substitution models and building and plotting th
 library(pathogenGenomicsWorkshop) # Our custom package for the current course
 ```
 
-We are also going to create a variable that stores todays date - we'll use this when we are creating files. Here's how:
+We are also going to create a variable that stores today's date - we'll use this when we are creating files. Here's how:
 
 ```{r}
 # Get the current date
@@ -84,7 +86,7 @@ today <- format(Sys.Date(), "%d-%m-%y")
 
 ## Step 3: Reading in the FASTA file
 
-A FASTA file stores a or multiple nucleotide sequences. Our FASTA file stores the nucleotides present at a subset of genomic positions for `48` different *M. bovis* genomes. Read it in using the following code:
+A FASTA file stores one or multiple nucleotide sequences. Our FASTA file stores the nucleotides present at a subset of genomic positions for `48` different *M. bovis* genomes. Read it in using the following code:
 ```{r}
 # Read in the FASTA file
 fastaFile <- system.file("extdata", "Wicklow_Mbovis.fasta", package = "pathogenGenomicsWorkshop")
@@ -99,7 +101,7 @@ Notice by default nucleotides are stored in lower case, we don't like that so we
 > 2. Do we have `48` sequences?<br>
 > 3. How many positions are in the FASTA file?<br>
 
-We also have a file that tells us which position on the *M. bovis* genome each position in the FASTA file relates to. Lets read that in:
+We also have a file that tells us which position on the *M. bovis* genome each position in the FASTA file relates to. Let's read that in:
 ```{r}
 # Read in the genome positions
 positionsFile <- system.file("extdata", "fastaPositions.txt", package = "pathogenGenomicsWorkshop")
@@ -180,7 +182,7 @@ head(sequenceInfo)
 
 ## Step 6: Examine the quality of the nucleotide sequences
 
-We don't have extensive data on the quality of our nucleotide sequences available but we can something about their quality from the nucleotide alignment. There are some `N`s in the alignment. 
+We don't have extensive data on the quality of our nucleotide sequences available but we can learn something about their quality from the nucleotide alignment. There are some `N`s in the alignment. 
 
 > QUESTION:<br>
 > 1. What do `N`s in a nucleotide alignment mean?<br>
@@ -318,20 +320,41 @@ tiplabels(pch=ifelse(grepl(mlTreeBSWithoutRef$tip.label, pattern = "Wildlife"), 
 addSNPScale(position="topright", lineWidth=2)
 
 # Add a species legend
-legend("right", legend=c("Badger", "Cow"), pch=c(19, 17), col=c("red", "blue"), bty="n", xpd=TRUE)
+legend("right", legend=c("Wildlife", "Cow"), pch=c(19, 17), col=c("red", "blue"), bty="n", xpd=TRUE)
 ```
+
+> QUESTIONS:<br>
+> 1. How similar are the *M. bovis* bacteria infected cattle and wildlife?<br>
+> 2. Does that have any implications for control?<br>
+> 3. What further analyses could we use on these data?<br>
+
+## Step 9: Wrapping up
+
+Today we have analyses nucleotide sequence data derived from whole genome sequence *M. bovis* data. *M. bovis* is an important bacterial pathogen. 
+
+Our samples were sourced from infected cattle and wildlife here in Ireland. Using these data, we are hoping to learn about what role wildlife are playing in Ireland's bovine tuberculosis problem.
+
+Alongside the analyses of the *M. bovis* data, we've introduced aspects of programming in R, using github and creating and using an R package.
+
+## Some useful resources
+
+To finish up, we would like to point out some helpful resources:
+
+- [Phylogenetic tree building](https://www.molecularecologist.com/2016/02/quick-and-dirty-tree-building-in-r/)
+- [Programming in R](https://www.tutorialspoint.com/r/index.htm)
+- [Ask and answer questions](https://stackoverflow.com/questions/tagged/r)
+- [Building an R package](https://hilaryparker.com/2014/04/29/writing-an-r-package-from-scratch/)
+- [Getting started with github](https://guides.github.com/activities/hello-world/)
 
 ## TO DO
 
 # Set up a different example: ebola.fasta (https://github.com/nextstrain/ebola/blob/master/example_data/ebola.fasta)
+- Need to edit the sequence names - get these to work with the metadata extraction function
+- Not sure if it is useful to include these data?
 
 # Remove the boostrapping?
 
-# Remove class check for alignment
-
 # SIMPLIFY!!!
-
-# Repository README
 
 # Test on MAC and WINDOWS machines
 

@@ -53,15 +53,6 @@ NULL
 #' proportionNs <- calculateProportionNsOfEachSequence(nucleotideAlignment)
 calculateProportionNsOfEachSequence <- function(nucleotideAlignment){
   
-  # Check if the input aligment is in the right format
-  if(class(nucleotideAlignment) == "DNAbin"){
-    nucleotideAlignment <- as.character(nucleotideAlignment)
-  }else if(class(nucleotideAlignment) == "alignment"){
-    nucleotideAlignment <- as.character(as.DNAbin(nucleotideAlignment))
-  }else if(class(nucleotideAlignment) != "matrix"){
-    stop("Class of input nucleotide alignment not recognised:", class(nucleotideAlignment))
-  }
-  
   # Initialise a vector to store the proportion of Ns found in each sequence
   proportionNs <- c()
   
@@ -140,15 +131,6 @@ getSequenceInfoFromNames <- function(names){
 #' # Count the number of each different nucleotide at each position
 #' nucleotideCounts <- countNucleotidesAtEachSite(nucleotideAlignment)
 countNucleotidesAtEachSite <- function(nucleotideAlignment){
-
-  # Check if the input aligment is in the right format
-  if(class(nucleotideAlignment) == "DNAbin"){
-    nucleotideAlignment <- as.character(nucleotideAlignment)
-  }else if(class(nucleotideAlignment) == "alignment"){
-    nucleotideAlignment <- as.character(as.DNAbin(nucleotideAlignment))
-  }else if(class(nucleotideAlignment) != "matrix"){
-    stop("Class of input nucleotide alignment not recognised:", class(nucleotideAlignment))
-  }
   
   # Initialise a vector to count the number of different nucleotides at each position (not including 'N's)
   nNucleotidesAtEachSite <- c()
@@ -193,15 +175,6 @@ countNucleotidesAtEachSite <- function(nucleotideAlignment){
 #' # Plot the nucleotide alignment
 #' plotFASTA(nucleotideAlignment)
 plotFASTA <- function(nucleotideAlignment, pdfFileName=NULL, pdfWidth=14, pdfHeight=7, labelSpace=1, lineForSequenceNames=0, labelCex=0.5){
-  
-  # Check if the input aligment is in the right format
-  if(class(nucleotideAlignment) == "DNAbin"){
-    nucleotideAlignment <- as.character(nucleotideAlignment)
-  }else if(class(nucleotideAlignment) == "alignment"){
-    nucleotideAlignment <- as.character(as.DNAbin(nucleotideAlignment))
-  }else if(class(nucleotideAlignment) != "matrix"){
-    stop("Class of input nucleotide alignment not recognised:", class(nucleotideAlignment))
-  }
 
   # Open a pdf if requested
   if(is.null(pdfFileName) == FALSE){
@@ -276,8 +249,6 @@ plotFASTA <- function(nucleotideAlignment, pdfFileName=NULL, pdfWidth=14, pdfHei
 #' # Add a scale
 #' addSNPScale(position="topright", lineWidth=2)
 addSNPScale <- function(x=NULL, y=NULL, position=NULL, size=1, lineWidth=1){
-  
-  # Add optional label
   
   # Get the axis limits of the current plot
   axisLimits <- par("usr")
