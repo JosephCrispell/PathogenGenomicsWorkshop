@@ -62,7 +62,8 @@ We'd recommend storing today's work (plots and your script) in a single folder. 
 today <- format(Sys.Date(), "%d-%m-%y")
 
 # Create a new directory on our desktop to store todays outputs
-directory <- file.path("~", "Desktop", paste0("CRT_PathogenGenomicsWorkshop_", today), "")
+directory <- file.path("~", "Desktop", 
+                       paste0("CRT_PathogenGenomicsWorkshop_", today), "")
 dir.create(directory)
 
 # Set your working directory
@@ -142,7 +143,8 @@ A FASTA file stores one or multiple nucleotide sequences. Our FASTA file stores 
 
 ```r
 # Read in the FASTA file
-fastaFile <- system.file("extdata", "Mbovis.fasta", package = "pathogenGenomicsWorkshop")
+fastaFile <- system.file("extdata", "Mbovis.fasta", 
+                         package = "pathogenGenomicsWorkshop")
 nucleotideAlignment <- read.dna(fastaFile, format = "fasta", as.character = TRUE)
 
 # Convert the nucleotides to upper case
@@ -167,7 +169,8 @@ We also have a file that tells us which position on the *M. bovis* genome that e
 
 ```r
 # Read in the genome positions
-positionsFile <- system.file("extdata", "Mbovis_FASTApositions.txt", package = "pathogenGenomicsWorkshop")
+positionsFile <- system.file("extdata", "Mbovis_FASTApositions.txt", 
+                             package = "pathogenGenomicsWorkshop")
 genomePositions <- read.table(positionsFile, header = TRUE)
 ```
 
@@ -193,7 +196,8 @@ Question 1
 Let's also take a quick look at the FASTA file. The code below will create a plot that is saved as a PDF in your working directory:
 
 ```r
-plotFASTA(nucleotideAlignment, pdfFileName = paste0("FullNucleotideAlignment_", today, ".pdf"))
+plotFASTA(nucleotideAlignment, 
+          pdfFileName = paste0("FullNucleotideAlignment_", today, ".pdf"))
 ```
 
 <img src="worksheet_02-10-19_files/figure-html/unnamed-chunk-10-1.png" style="display: block; margin: auto;" />
@@ -301,7 +305,8 @@ Let's calculate the proportion of nucleotides in each sequence that are `N`s:
 
 ```r
 # Calculate the proportion of Ns for each sequence
-proportionNsInInformativeSites <- calculateProportionNsOfEachSequence(nucleotideAlignmentInformative)
+proportionNsInInformativeSites <- 
+  calculateProportionNsOfEachSequence(nucleotideAlignmentInformative)
 ```
 
 > EXERCISE:<br>
@@ -372,7 +377,7 @@ fittingOutput <- optim.pml(likelihoodObject,
                            optBf = TRUE, # Optimise the base frequencies
                            model = "HKY", # Substitution model
                            rearrangement = "NNI", # Nearest Neighbour Interchanges
-                           control = pml.control(maxit=100000)) # Set the maximum number of iterations
+                           control = pml.control(maxit = 100000)) # Max iterations
 ```
 
 
@@ -403,7 +408,7 @@ Lastly, now we'll take the output of our maximum likelihood analysis and feed it
 bootstrapResults <- bootstrap.pml(fittingOutput,
                                   bs = 100, # Number of bootstraps
                                   jumble = TRUE, # Jumble the order of the sequences
-                                  control = pml.control(maxit=100000)) # Set maximum iteration number
+                                  control = pml.control(maxit = 100000)) # Max iters
 ```
 
 <!-- TALKING NOTES:
@@ -420,7 +425,7 @@ Now that we have constructed and bootstrapped our maximum likelihood phylogeneti
 
 ```r
 # Get phylogenetic tree with bootstrap values
-# NOTE: plotBS() function returns phylogenetic tree with bootstrap values as node labels
+# NOTE: plotBS() function returns tree with bootstrap values as node labels
 mlTreeBS <- plotBS(fittingOutput$tree, bootstrapResults, type = "fan")
 ```
 
@@ -498,11 +503,13 @@ mlTreeBSWithoutRef <- drop.tip(mlTreeBS, tip = "Reference_Cow_1997-10-15")
 par(mar=c(0.1, 0.1, 0.1, 0.1))
 
 # Plot the phylogeny - add in bootstrap values and species shapes
-plot.phylo(mlTreeBSWithoutRef, show.tip.label = FALSE, edge.width = 3, type = "phylogram")
+plot.phylo(mlTreeBSWithoutRef, show.tip.label = FALSE, edge.width = 3,
+           type = "phylogram")
 
 # Add node labels
-tiplabels(pch = ifelse(grepl(mlTreeBSWithoutRef$tip.label, pattern = "Wildlife"), 21, 24), 
-          bg = ifelse(grepl(mlTreeBSWithoutRef$tip.label, pattern = "Wildlife"), "red", "blue"),
+isWildlife <- grepl(mlTreeBSWithoutRef$tip.label, pattern = "Wildlife")
+tiplabels(pch = ifelse(isWildlife, 21, 24), 
+          bg = ifelse(isWildlife, "red", "blue"),
           col = "dimgrey", cex = 1.5)
 
 # Add a scale
@@ -569,11 +576,13 @@ There are some really nice visualisations of these data that can be found [here]
 
 ```r
 # Read in the FASTA file
-fastaFile <- system.file("extdata", "ebola_parsed.fasta", package = "pathogenGenomicsWorkshop")
+fastaFile <- system.file("extdata", "ebola_parsed.fasta", 
+                         package = "pathogenGenomicsWorkshop")
 nucleotideAlignment <- read.dna(fastaFile, format = "fasta", as.character = TRUE)
 
 # Read in the genome positions
-positionsFile <- system.file("extdata", "ebola_FASTApositions.txt", package = "pathogenGenomicsWorkshop")
+positionsFile <- system.file("extdata", "ebola_FASTApositions.txt", 
+                             package = "pathogenGenomicsWorkshop")
 genomePositions <- read.table(positionsFile, header = TRUE)
 ```
 
@@ -587,7 +596,7 @@ If you're having no trouble with the workshop content, take a look at the functi
 
 You'll find the code for each of the functions [here](https://github.com/JosephCrispell/pathogenGenomicsWorkshop/blob/master/R/pathogenGenomicsWorkshop.R). The `system.time()` function might be useful to calculate how long a function takes, and see if you can make it faster!
 
-
+<!--
 ## TO DO
 
 # Include substitution model search? - YES - comment out if not wanted
@@ -615,3 +624,5 @@ You'll find the code for each of the functions [here](https://github.com/JosephC
 - Worksheet
 - R and package installing instructions
 - Brief description of the workshop
+
+-->
