@@ -166,6 +166,8 @@ countNucleotidesAtEachSite <- function(nucleotideAlignment){
 #' @param labelSpace Numeric multiplier to change the size of the space alotted to the sequence labels
 #' @param lineForSequenceNames The number of lines into the margin at which the sequence names will be plotted. Default value is 0.
 #' @param labelCex Numeric multiplier to change the size of the sequence labels. Default value is 0.5.
+#' @param cex.lab Numeric multiplier to change size of X axis label
+#' @param cex.axis Numeric multipler to change size of X axis tick labels
 #' @keywords nucleotide alignment DNAbin plot
 #' @export
 #' @examples
@@ -174,7 +176,8 @@ countNucleotidesAtEachSite <- function(nucleotideAlignment){
 #' 
 #' # Plot the nucleotide alignment
 #' plotFASTA(nucleotideAlignment)
-plotFASTA <- function(nucleotideAlignment, pdfFileName=NULL, pdfWidth=14, pdfHeight=7, labelSpace=1, lineForSequenceNames=0, labelCex=0.5){
+plotFASTA <- function(nucleotideAlignment, pdfFileName=NULL, pdfWidth=14, pdfHeight=7, labelSpace=1,
+                      lineForSequenceNames=0, labelCex=0.5, cex.lab=1, cex.axis=1){
 
   # Open a pdf if requested
   if(is.null(pdfFileName) == FALSE){
@@ -193,7 +196,8 @@ plotFASTA <- function(nucleotideAlignment, pdfFileName=NULL, pdfWidth=14, pdfHei
   nSites <- ncol(nucleotideAlignment)
   
   # Create an empty plot
-  plot(x=NULL, y=NULL, xlim=c(1, nSites), ylim=c(1, nSequences), bty="n", yaxt="n", ylab="", xlab="Position")
+  plot(x=NULL, y=NULL, xlim=c(1, nSites), ylim=c(1, nSequences), bty="n", yaxt="n", ylab="", xlab="Position",
+       cex.lab=cex.lab, cex.axis=cex.axis)
   
   # Examine each sequence
   for(sequenceIndex in seq_len(nSequences)){
@@ -212,8 +216,8 @@ plotFASTA <- function(nucleotideAlignment, pdfFileName=NULL, pdfWidth=14, pdfHei
   }
   
   # Add the sequence names
-  axis(side=2, at=seq_len(nSequences), labels=rownames(nucleotideAlignment), tick=FALSE, las=1, line=-1.75+lineForSequenceNames, 
-       cex.axis=labelCex)
+  axis(side=2, at=seq_len(nSequences), labels=rownames(nucleotideAlignment), tick=FALSE, las=1, 
+       line=-1.75+lineForSequenceNames, cex.axis=labelCex)
   
   # Add nucleotide legend
   legend(x=nSites/2, y=nSequences + (0.15*nSequences), horiz=TRUE, xpd=TRUE, pch=22, col="grey", bty="n", xjust=0.5,

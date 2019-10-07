@@ -6,7 +6,7 @@
 \usage{
 plotFASTA(nucleotideAlignment, pdfFileName = NULL, pdfWidth = 14,
   pdfHeight = 7, labelSpace = 1, lineForSequenceNames = 0,
-  labelCex = 0.5)
+  labelCex = 0.5, cex.lab = 1, cex.axis = 1)
 }
 \arguments{
 \item{nucleotideAlignment}{A matrix or a list containing the DNA sequences, or an object of class "alignment"}
@@ -22,6 +22,10 @@ plotFASTA(nucleotideAlignment, pdfFileName = NULL, pdfWidth = 14,
 \item{lineForSequenceNames}{The number of lines into the margin at which the sequence names will be plotted. Default value is 0.}
 
 \item{labelCex}{Numeric multiplier to change the size of the sequence labels. Default value is 0.5.}
+
+\item{cex.lab}{Numeric multiplier to change size of X axis label}
+
+\item{cex.axis}{Numeric multipler to change size of X axis tick labels}
 }
 \description{
 Function uses coloured polygons to illustrate which nucleotides are present in each sequence at each position

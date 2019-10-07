@@ -15,20 +15,40 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Introduction
 
+<!-- TALKING NOTES:
+
+Joseph Crispell - Post-doc working at UCD with Stephen Gordon
+
+Today we're going to be constructing a phylogeny in R.
+-->
+
 Pathogens threaten the health of people and animals. Understanding pathogen transmission can help us understand how to control it.
 
 Today we are going to be working with genomic data for the pathogen *Mycobacterium bovis*. *M. bovis* causes bovine tuberculosis in cattle and many other species. It costs Ireland millions to control. How can genomic data help?
 
 We'll use some *M. bovis* genomic data sourced from infected cattle and wildlife to try and understand the role of wildlife. Wildlife species have been shown to harbour and transmit infection to cattle, we want to know if that is the case here in Ireland.
 
+<!-- TALKING NOTES:
+Guage the room:
+- Experience with phylogenetic tree building
+- General (R) programming skills
+- Anyone already using github?
+- Anyone made their own R package?
+-->
+
 ### Learning objectives
 
 After our workshop we hope that you have learnt about:
+
 - Programming in R
 - Loading and using a FASTA nucleotide file
 - Constructing and plotting a phylogenetic tree
 - Why github is really useful
 - Using and building R packages
+
+<!-- TALKING NOTES:
+Hoping to get everyone engaged and working together during this session.
+-->
 
 ---
 
@@ -61,6 +81,17 @@ today <- format(Sys.Date(), "%d-%m-%y")
 
 ---
 
+<!-- TALKING NOTES:
+So now we are ready to get started. Before we start I just want to highlight that we're happy for everyone to work at their own pace.
+
+It would be great if you can help your neighbours out, if they are having any issues.
+
+Additional learning:
+- Improving the workshop specific functions
+- Using github repository to learn about building an R package
+- Getting comfortable with github
+-->
+
 ## Step 2: Getting started
 
 Next, we are going to install some R packages that we'll use throughout the workshop. The packages are `ape`, `phangorn` and `PathogenGenomicsWorkshopPackage`. The first two packages are commonly used for phylogenetic analyses in R. 
@@ -71,33 +102,45 @@ To install the R packages, you can use the following code:
 
 ```{r eval=FALSE, echo=TRUE}
 # Install the 'ape' package
-install.packages("ape", repos="https://cloud.r-project.org")
+install.packages("ape", repos = "https://cloud.r-project.org")
 
 # Install the 'phangorn' package
-install.packages("phangorn", repos="https://cloud.r-project.org")
+install.packages("phangorn", repos = "https://cloud.r-project.org")
+
+# Install the 'devtools' package
+install.packages("devtools", repos = "https://cloud.r-project.org")
 
 # Install the 'pathogenGenomicsPackage' package
-install.packages("devtools", repos="https://cloud.r-project.org") # We need devtools to install packages from github
 devtools::install_github("JosephCrispell/pathogenGenomicsWorkshop")
 ```
 
 With the packages successfully installed, we can now load them:
 ```{r echo=FALSE, message=FALSE, results="hide"}
 # Load the required libraries
-suppressWarnings(library(ape)) # For reading in sequence
-suppressWarnings(library(phangorn)) # For testing substitution models and building and plotting the phylogeny
-suppressWarnings(library(pathogenGenomicsWorkshop)) # Our custom package for the current course
+suppressWarnings(library(ape)) # Handling sequences
+suppressWarnings(library(phangorn)) # Building phylogeny
+suppressWarnings(library(pathogenGenomicsWorkshop)) # Our custom package
 ```
 
 ```{r eval=FALSE, echo=TRUE}
 # Load the required libraries
-library(ape) # For reading in sequence
-library(phangorn) # For testing substitution models and building and plotting the phylogeny
-library(pathogenGenomicsWorkshop) # Our custom package for the current course
+library(ape) # Handling sequences
+library(phangorn) # # Building phylogeny
+library(pathogenGenomicsWorkshop) # Our custom package
 ```
 
 > QUESTION:<br>
 > 1. Why create/use R packages?
+
+<!-- TALKING NOTES:
+Benefits of R packages:
+- Not reinventing the wheel
+- Ease of sharing code
+- The building blocks of R community
+- Most up-to-date methods
+- Task specific
+- Fully documented
+-->
 
 ---
 
@@ -107,7 +150,7 @@ A FASTA file stores one or multiple nucleotide sequences. Our FASTA file stores 
 ```{r}
 # Read in the FASTA file
 fastaFile <- system.file("extdata", "Mbovis.fasta", package = "pathogenGenomicsWorkshop")
-nucleotideAlignment <- read.dna(fastaFile, format = "fasta", as.character=TRUE)
+nucleotideAlignment <- read.dna(fastaFile, format = "fasta", as.character = TRUE)
 
 # Convert the nucleotides to upper case
 nucleotideAlignment <- toupper(nucleotideAlignment)
@@ -120,29 +163,55 @@ Notice by default nucleotides are stored in lower case, we've chosen to convert 
 > 2. Do we have `48` sequences?<br>
 > 3. How many positions are in the FASTA file?<br>
 
+
+<!-- TALKING NOTES:
+1. "matrix" - classes define a specific way of storing and dealing with a type of data
+2. Use nrow(nucleotideAlignment) to find out
+3. Use ncol(nucleotideAlignment) to find out
+-->
+
 We also have a file that tells us which position on the *M. bovis* genome that each site in the FASTA file relates to. Let's read that in:
 ```{r}
 # Read in the genome positions
 positionsFile <- system.file("extdata", "Mbovis_FASTApositions.txt", package = "pathogenGenomicsWorkshop")
-genomePositions <- read.table(positionsFile, header=TRUE)
+genomePositions <- read.table(positionsFile, header = TRUE)
 ```
 
 > EXERCISE:<br>
 > 1. Create the plot below<br>
 
-```{r eval=TRUE, echo=FALSE, fig.align="center"}
+```{r eval=TRUE, echo=FALSE, fig.align="center", fig.width=15}
+# Set the margin sizes
+par(mar=c(5.1, 5.1, 4.1, 2.1))
+
 # Plot the positions of the FASTA positions
-hist(genomePositions$Position, breaks=1000, las=1,
-     main="Positions of sites in the FASTA nucleotide alignment",
-     xlab="Position")
+hist(genomePositions$Position, 
+     breaks = 1000, # Set the number of bins
+     las = 1, # Make tick labels horizontal
+     cex.main=2, # Set size of title
+     cex.axis=2, # Set size of axis tick labels
+     cex.lab=2, # Set size of axis labels
+     main = "Positions of sites in the FASTA nucleotide alignment",
+     xlab = "Position")
 ```
 
 > QUESTION:<br>
 > 1. Why might there be areas of the genome with more variants?<br>
 
+<!-- TALKING NOTES:
+
+Exercise 1
+- Encourage students to use internet searches to find solutions.
+- Important principals of data visualisation. Simple and clear figure. Labeled axes. Good font size.
+
+Question 1
+- Selection pressures aren't uniform across the genome (highly conserved areas are likely to have less)
+- Sequencing quality isn't uniform across the genome (low complexity regions harder to sequence and also change more rapidly)
+-->
+
 Let's also take a quick look at the FASTA file. The code below will create a plot that is saved as a PDF in your working directory:
 ```{r echo=TRUE, message=FALSE, results="hide"}
-plotFASTA(nucleotideAlignment, pdfFileName=paste0("FullNucleotideAlignment_", today, ".pdf"))
+plotFASTA(nucleotideAlignment, pdfFileName = paste0("FullNucleotideAlignment_", today, ".pdf"))
 ```
 
 ```{r fig.align="center", fig.width=15, fig.height=7.5, echo=FALSE}
@@ -171,11 +240,19 @@ informativeGenomePositions <- genomePositions[-uninformativeSites, ]
 > 1. What is an uninformative site?<br>
 > 2. What does line 5 in the above code block do?<br>
 
+<!-- TALKING NOTES:
+Question 1:
+- Uniformative site is one where all sequences have the same nucleotide
+
+Question 2:
+- Gets the indices of the sites in the alignment with less than two types of nucleotide present (uninformative sites)
+-->
+
 Now, let's take another look at the alignment, how has it changed?
 
 ```{r echo=TRUE, message=FALSE, results="hide", eval=FALSE}
 plotFASTA(nucleotideAlignmentInformative, 
-          pdfFileName=paste0("InformativeSitesAlignment_", today, ".pdf"))
+          pdfFileName = paste0("InformativeSitesAlignment_", today, ".pdf"))
 ```
 ```{r fig.align="center", fig.width=15, fig.height=7.5, echo=FALSE}
 plotFASTA(nucleotideAlignmentInformative)
@@ -184,6 +261,18 @@ plotFASTA(nucleotideAlignmentInformative)
 > QUESTIONS:<br>
 > 1. Can anyone guess what the nucleotide sequence at the top of the plot is?<br>
 > 2. Could removing uninformative sites have any effect?<br>
+
+<!-- TALKING NOTES:
+Question 1:
+- The reference genome (AF2122/97 - M. bovis sourced from an infected cow in SW England in 1997)
+- Sequenced and annotated by Thierry Garnier and many others including Stephen Gordon
+- Reference genomes are those sequenced to a high quality and provide a means of comparing new sequence data
+
+Question 2:
+- NO - if you remove a site that provides no distinguishing information it shouldn't have an effect.
+- Decreases computational load
+- Effects estimating substitution rates but easily accounted for
+-->
 
 ---
 
@@ -201,6 +290,12 @@ head(sequenceInfo)
 
 > EXERCISE:<br>
 > 1. Calculate the number of samples sourced from wildlife and the number sourced from cattle<br>
+
+<!-- TALKING NOTES:
+Exercise 1:
+- Use table(sequenceInfo$Species) (19 wildlife and 29 cattle)
+- Accurate metadata are essential. Without genomic similarity isn't very helpful.
+-->
 
 ---
 
@@ -222,14 +317,25 @@ proportionNsInInformativeSites <- calculateProportionNsOfEachSequence(nucleotide
 
 ```{r eval=TRUE, echo=FALSE, fig.align="center"}
 # Plot these values
-hist(proportionNsInInformativeSites, breaks=50, las=1, xlab="Proportion of Ns",
-     main="Quality of nucleotide sequences (informative sites only)")
+hist(proportionNsInInformativeSites, 
+     breaks = 50, # Set the number of bins
+     las = 1, # Make tick labels horizontal
+     xlab = "Proportion of Ns",
+     main = "Quality of nucleotide sequences (informative sites only)")
 ```
 
 There are a couple of nucleotide sequences that don't have data for ~8% of the genome sites.
 
 > QUESTION:<br>
 > 1. How might these differences in sequence quality impact our analyses?<br>
+
+<!-- TALKING NOTES:
+Question 1:
+- Quality effects our ability to determine how similar two genomes
+- The conservative use of 'N's means a low quality sequence will be similar to many
+- It is important to be upfront about quality
+- Quality will vary greatly
+-->
 
 ---
 
@@ -239,7 +345,7 @@ To build a phylogenetic tree we need to calculate the number of differences betw
 
 ```{r}
 # Build a genetic distance matrix
-distances <- dist.dna(as.DNAbin(nucleotideAlignmentInformative), model="raw")
+distances <- dist.dna(as.DNAbin(nucleotideAlignmentInformative), model = "raw")
 ```
 
 Note that in the code above, we had to change the class (format) that we were storing our nucleotide alignment in.
@@ -261,7 +367,7 @@ To prepare to build our Maximum Likelihood phylogeny, we'll construct a likeliho
 
 ```{r eval=FALSE}
 # Convert the nucleotide sequences into the PHYDAT format
-sequencesInPhyDatFormat <- phyDat(nucleotideAlignmentInformative, type="DNA")
+sequencesInPhyDatFormat <- phyDat(nucleotideAlignmentInformative, type = "DNA")
 
 # Compute likelihood of the initial Neighbour Joining tree given sequences
 likelihoodObject <- pml(initialNJTree, sequencesInPhyDatFormat)
@@ -280,6 +386,39 @@ fittingOutput <- optim.pml(likelihoodObject,
                            control = pml.control(maxit=100000)) # Set the maximum number of iterations
 ```
 
+```{r eval=FALSE, echo=FALSE}
+# Testing different substition models
+substitutionModelScores <- modelTest(sequencesInPhyDatFormat, tree = initialNJTree, 
+                                     model = c("JC", "HKY", "GTR"))
+
+# Order the table by AICc (corrected AIC)
+substitutionModelScores <- substitutionModelScores[order(substitutionModelScores$AICc),]
+
+# Select the best substitution model based upon lowest AICc
+bestmodel <- substitutionModelScores$Model[which.min(substitutionModelScores$AICc)]
+
+# choose best model from the table according to AICc
+bestModel <- substitutionModelScores$Model[which.min(substitutionModelScores$AICc)]
+```
+
+<!-- TALKING NOTES:
+Not exploring the substitution model space, would be better to use modelTest() function to identify best model
+To include: some good notes here: https://cran.r-project.org/web/packages/phangorn/vignettes/Trees.pdf
+
+Nearest neighbour interchange:
+Nearest Neighbor Interchange is a tree topology search strategy which attempts to improve the likelihood of a given tree by performing the following operations on the tree. Each internal branch branch of a binary unrooted tree has 4 subtrees connected" to it (a subtree may consist of a single node). NNI exchanges those subtrees to obtain a new tree. There are only two exchanges which lead to new unrooted binary trees. The procedure is usually repeated for each internal branch, until no further likelihood improvements can be obtained.
+https://southgreen.fr/glossary/term/432
+
+Proportion of invariable sites:
+Used to identify and ignore invariable sites - we still have alot because of the presence of the reference genome
+Read more here: https://pdfs.semanticscholar.org/9df7/9aaa9aedf72483cb196bca2c62c8ebfc55e5.pdf?_ga=2.211437461.1805752305.1570434240-681736793.1570434240
+
+Base frequencies:
+The frequency of each nucleotide in the alignment.
+HKY can allow for variable base frequencies.
+Influences the likelihood of one mutation over another
+-->
+
 Lastly, now we'll take the output of our maximum likelihood analysis and feed it into a bootstrapping analysis:
 
 ```{r eval=FALSE}
@@ -290,6 +429,11 @@ bootstrapResults <- bootstrap.pml(fittingOutput,
                                   control = pml.control(maxit=100000)) # Set maximum iteration number
 ```
 
+<!-- TALKING NOTES:
+Great paper: Felsenstein 1985 - Confidence limits on phylogenies: an approach using the bootstrap
+Bootstrapping is resampling the sites in the alignment with replacement. How many nodes are retained.
+-->
+
 ---
 
 ## Step 8: Plotting the phylogenetic tree
@@ -299,7 +443,7 @@ Now that we have constructed and bootstrapped our maximum likelihood phylogeneti
 ```{r eval=FALSE}
 # Get phylogenetic tree with bootstrap values
 # NOTE: plotBS() function returns phylogenetic tree with bootstrap values as node labels
-mlTreeBS <- plotBS(fittingOutput$tree, bootstrapResults, type="fan")
+mlTreeBS <- plotBS(fittingOutput$tree, bootstrapResults, type = "fan")
 ```
 
 ```{r echo=FALSE, eval=TRUE, message=FALSE, results="hide"}
@@ -314,15 +458,49 @@ With the phylogeny stored as an object, we are going to create a simple plot:
 mlTreeBS$edge.length <- mlTreeBS$edge.length * ncol(nucleotideAlignmentInformative)
 
 # Set the plotting margins
-par(mar=c(0.1, 0.1, 0.1, 0.1))
+par(mar = c(0.1, 0.1, 0.1, 0.1))
+
+# Root the phylogeny on the reference genome
+mlTree <- root(mlTreeBS, outgroup="Reference_Cow_1997-10-15")
 
 # Plot the phylogeny 
-plot.phylo(mlTreeBS, show.tip.label = TRUE, edge.width = 2, type = "phylogram", edge.color = "grey")
+plot.phylo(mlTreeBS, show.tip.label = TRUE, edge.width = 2, type = "phylogram")
+
+# Add a scale
+addSNPScale(position="topright", lineWidth = 2, size = 100)
 ```
 
 > QUESTIONS:<br>
 > 1. What does line 2 in the above code block do?<br>
 > 2. Why does the reference stick out so far?<br>
+
+<!-- TALKING NOTES:
+Question 1:
+- Rescaling the patristic distances.
+- Changing from proportional difference to SNP distance - more intuitive
+
+Question 2:
+- The reference genome is highly distinct from the rest of the sequences
+- Sampled from a different country over twenty years ago
+-->
+
+Let's take a look at the boostrap support values:
+
+```{r}
+print(mlTreeBS$node.label)
+```
+
+> QUESTION:<br>
+> 1. How much support for each node in the phylogeny is there?<br>
+
+<!-- TALKING NOTES:
+Question 1:
+- Each node was found in all the 100 bootstraps - 100% support
+- Each site in the alignment is entirely consistent
+- Small phylogeny without too many alternatives
+- Not too much missing data
+- No homoplasies (recombination or convergence)
+-->
 
 Let's remove the reference sequence and take a closer look at the phylogenetic relationships:
 
@@ -335,29 +513,47 @@ mlTreeBSWithoutRef <- drop.tip(mlTreeBS, tip = "Reference_Cow_1997-10-15")
 par(mar=c(0.1, 0.1, 0.1, 0.1))
 
 # Plot the phylogeny - add in bootstrap values and species shapes
-plot.phylo(mlTreeBSWithoutRef, show.tip.label = FALSE, edge.width = 3, type = "phylogram",
-           edge.color = "grey")
-
-# Add bootstrap values
-bootstrapValues <- mlTreeBSWithoutRef$node.label/100
-nodelabels(pch=19, frame="none", col=rgb(0,0,0, bootstrapValues), cex=0.75)
+plot.phylo(mlTreeBSWithoutRef, show.tip.label = FALSE, edge.width = 3, type = "phylogram")
 
 # Add node labels
-tiplabels(pch=ifelse(grepl(mlTreeBSWithoutRef$tip.label, pattern = "Wildlife"), 21, 24), 
-          bg=ifelse(grepl(mlTreeBSWithoutRef$tip.label, pattern = "Wildlife"), "red", "blue"),
-          col = "dimgrey", cex=1.5)
+tiplabels(pch = ifelse(grepl(mlTreeBSWithoutRef$tip.label, pattern = "Wildlife"), 21, 24), 
+          bg = ifelse(grepl(mlTreeBSWithoutRef$tip.label, pattern = "Wildlife"), "red", "blue"),
+          col = "dimgrey", cex = 1.5)
 
 # Add a scale
-addSNPScale(position="topright", lineWidth=2)
+addSNPScale(position="topright", lineWidth = 2)
 
 # Add a species legend
-legend("right", legend=c("Wildlife", "Cow"), pch=c(19, 17), col=c("red", "blue"), bty="n", xpd=TRUE)
+legend("right", legend = c("Wildlife", "Cow"), pch = c(19, 17), 
+       col = c("red", "blue"), bty = "n", xpd = TRUE)
 ```
+
+<!--
+```{r eval=FALSE, echo=FALSE}
+# Add bootstrap values
+bootstrapValues <- mlTreeBSWithoutRef$node.label/100
+nodelabels(pch = 19, frame = "none", col = rgb(0,0,0, bootstrapValues), cex = 0.75)
+```
+-->
 
 > QUESTIONS:<br>
 > 1. How similar are the *M. bovis* bacteria infected cattle and wildlife?<br>
 > 2. Does that have any implications for control?<br>
 > 3. What further analyses could we use on these data?<br>
+
+<!-- TALKING NOTES:
+Question 1:
+- Highly similar but not identical
+
+Question 2:
+- Cattle and wildlife are sharing strains of M. bovis
+- Which direction is transmission happening in?
+
+Question 3:
+- Overlay temporal data
+- Ideally get some more samples
+- Search for substitution model
+-->
 
 ---
 
@@ -365,7 +561,7 @@ legend("right", legend=c("Wildlife", "Cow"), pch=c(19, 17), col=c("red", "blue")
 
 Today we have analyses nucleotide sequence data derived from whole genome sequence *M. bovis* data. *M. bovis* is an important bacterial pathogen. 
 
-Our samples were sourced from infected cattle and wildlife here in Ireland. Using these data, we are hoping to learn about what role wildlife are playing in Ireland's bovine tuberculosis problem.
+Our samples were sourced from infected cattle and wildlife here in Ireland. Using these data, we were hoping to learn about what role wildlife are playing in Ireland's bovine tuberculosis problem.
 
 Alongside the analyses of the *M. bovis* data, we've introduced aspects of programming in R, using github and creating and using an R package.
 
@@ -375,7 +571,7 @@ To finish up, we would like to point out some helpful resources:
 
 - [Phylogenetic tree building](https://www.molecularecologist.com/2016/02/quick-and-dirty-tree-building-in-r/)
 - [Programming in R](https://www.tutorialspoint.com/r/index.htm)
-- [Ask and answer questions](https://stackoverflow.com/questions/tagged/r)
+- [Forum to ask and answer questions](https://stackoverflow.com/questions/tagged/r)
 - [Building an R package](https://hilaryparker.com/2014/04/29/writing-an-r-package-from-scratch/)
 - [Getting started with github](https://guides.github.com/activities/hello-world/)
 - [Using R markdown](https://rstudio.com/wp-content/uploads/2015/02/rmarkdown-cheatsheet.pdf)
@@ -384,17 +580,17 @@ To finish up, we would like to point out some helpful resources:
 
 ## Additional dataset
 
-If you've raced through the analyses of the *M. bovis* data. We have added an *Zaire ebolavirus* (Ebola virus) nucleotide sequence that you could work on. Ebola virus presents a massive risk to human health. The genomic data you'll examine is a subset of that sourced from infected people in West Africa [more information here](https://www.nature.com/articles/nature22040).
+If you've raced through the analyses of the *M. bovis* data. We have added a *Zaire ebolavirus* (Ebola virus) nucleotide sequence alignment that you could work on. Ebola virus presents a massive risk to human health. The genomic data you'll examine is a subset of that sourced from infected people in West Africa [more information here](https://www.nature.com/articles/nature22040).
 
-There are some really nice visualisations of these data can be found [here](https://nextstrain.org/ebola). You can get started with the Ebola virus data with the following code:
+There are some really nice visualisations of these data that can be found [here](https://nextstrain.org/ebola). You can get started with the following code:
 ```{r eval=FALSE}
 # Read in the FASTA file
 fastaFile <- system.file("extdata", "ebola_parsed.fasta", package = "pathogenGenomicsWorkshop")
-nucleotideAlignment <- read.dna(fastaFile, format = "fasta", as.character=TRUE)
+nucleotideAlignment <- read.dna(fastaFile, format = "fasta", as.character = TRUE)
 
 # Read in the genome positions
 positionsFile <- system.file("extdata", "ebola_FASTApositions.txt", package = "pathogenGenomicsWorkshop")
-genomePositions <- read.table(positionsFile, header=TRUE)
+genomePositions <- read.table(positionsFile, header = TRUE)
 ```
 
 ---
@@ -409,6 +605,8 @@ You'll find the code for each of the functions [here](https://github.com/JosephC
 
 
 ## TO DO
+
+# Include substitution model search? - YES - comment out if not wanted
 
 # Remove the boostrapping?
 
