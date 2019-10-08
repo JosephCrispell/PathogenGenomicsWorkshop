@@ -1,7 +1,7 @@
 ---
 title: "Pathogen Genomics Workshop"
 author: "Joseph Crispell"
-date: "07 Oct 2019"
+date: "08 Oct 2019"
 output: 
   html_document:
     keep_md: true
@@ -18,6 +18,12 @@ output:
 Joseph Crispell - Post-doc working at UCD with Stephen Gordon
 
 Today we're going to be constructing a phylogeny in R.
+
+My background:
+- Studied Zoology at the University of Glasgow
+- Developed quantitative and computational skills during my PhD
+- Working as a post-doc with Steve at University College Dublin
+- My research looks into how we can use genomics to improve the control of bovine tuberculosis
 -->
 
 Pathogens threaten the health of people and animals. Understanding pathogen transmission can help us understand how to control it.
@@ -46,6 +52,8 @@ After our workshop we hope that you have learnt about:
 
 <!-- TALKING NOTES:
 Hoping to get everyone engaged and working together during this session.
+
+We expect a range of abilities here today.
 -->
 
 ---
@@ -453,6 +461,8 @@ addSNPScale(position="topright", lineWidth = 2, size = 100)
 
 <img src="worksheet_02-10-19_files/figure-html/unnamed-chunk-25-1.png" style="display: block; margin: auto;" />
 
+
+
 > QUESTIONS:<br>
 > 1. What does line 2 in the above code block do?<br>
 > 2. Why does the reference stick out so far?<br>
@@ -520,7 +530,7 @@ legend("right", legend = c("Wildlife", "Cow"), pch = c(19, 17),
        col = c("red", "blue"), bty = "n", xpd = TRUE)
 ```
 
-<img src="worksheet_02-10-19_files/figure-html/unnamed-chunk-27-1.png" style="display: block; margin: auto;" />
+<img src="worksheet_02-10-19_files/figure-html/unnamed-chunk-28-1.png" style="display: block; margin: auto;" />
 
 <!--
 

@@ -20,6 +20,12 @@ knitr::opts_chunk$set(echo = TRUE)
 Joseph Crispell - Post-doc working at UCD with Stephen Gordon
 
 Today we're going to be constructing a phylogeny in R.
+
+My background:
+- Studied Zoology at the University of Glasgow
+- Developed quantitative and computational skills during my PhD
+- Working as a post-doc with Steve at University College Dublin
+- My research looks into how we can use genomics to improve the control of bovine tuberculosis
 -->
 
 Pathogens threaten the health of people and animals. Understanding pathogen transmission can help us understand how to control it.
@@ -48,6 +54,8 @@ After our workshop we hope that you have learnt about:
 
 <!-- TALKING NOTES:
 Hoping to get everyone engaged and working together during this session.
+
+We expect a range of abilities here today.
 -->
 
 ---
@@ -473,6 +481,15 @@ plot.phylo(mlTreeBS, show.tip.label = TRUE, edge.width = 2, type = "phylogram")
 
 # Add a scale
 addSNPScale(position="topright", lineWidth = 2, size = 100)
+```
+
+```{r eval=FALSE, echo=FALSE}
+# Get the information for the tips
+rownames(sequenceInfo) <- sequenceInfo$Name
+tipInfo <- sequenceInfo[mlTreeBS$tip.label, ]
+
+# Finding the best root for the phylogeny
+rootedMlTree <- rtt(mlTreeBS, tip.dates=tipInfo$SamplingDate, objective = "rsquared")
 ```
 
 > QUESTIONS:<br>
