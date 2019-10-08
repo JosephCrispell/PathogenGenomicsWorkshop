@@ -154,8 +154,6 @@ countNucleotidesAtEachSite <- function(nucleotideAlignment){
   return(nNucleotidesAtEachSite)
 }
 
-# Function to plot a nucleotide sequence alignment
-# NOTE: designed to work with character matrix returned from read.dna()
 #' Plot the different nucleotides present in an alignment of nucleotide sequences
 #'
 #' Function uses coloured polygons to illustrate which nucleotides are present in each sequence at each position
